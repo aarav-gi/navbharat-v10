@@ -1,0 +1,137 @@
+<!-- PROGRESS BAR & SKELETON SHIMMER BUFFERING ENGINE -->
+<style>
+  #global-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #6366F1, #06B6D4, #10B981);
+    z-index: 99999;
+    transition: width 0.25s ease-out, opacity 0.3s ease;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+  }
+
+  @keyframes shimmer-sweep {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .shimmer-layer {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.03) 75%);
+    background-size: 200% 100%;
+    animation: shimmer-sweep 1.6s infinite ease-in-out;
+  }
+</style>
+
+<!-- Top Progress Bar -->
+<div id="global-progress-bar" class="pointer-events-none opacity-0"></div>
+
+<!-- Skeleton Shimmer Backdrop (Active during page buffering) -->
+<div id="page-skeleton-overlay"
+     class="fixed inset-0 bg-[#060913] z-[9999] opacity-0 pointer-events-none transition-opacity duration-200 overflow-y-auto px-4 py-5">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Skeleton Top Banner / Header -->
+    <div class="rounded-2xl p-5 bg-[#0F172A]/90 border border-white/[0.08] flex items-center justify-between">
+      <div class="space-y-2">
+        <div class="h-6 w-48 rounded-lg shimmer-layer"></div>
+        <div class="h-3.5 w-72 rounded-md shimmer-layer opacity-60"></div>
+      </div>
+      <div class="h-8 w-24 rounded-lg shimmer-layer opacity-80 hidden sm:block"></div>
+    </div>
+
+    <!-- Skeleton Category Tabs -->
+    <div class="flex gap-2 overflow-hidden py-1">
+      <div class="h-8 w-28 rounded-lg shimmer-layer shrink-0"></div>
+      <div class="h-8 w-24 rounded-lg shimmer-layer shrink-0"></div>
+      <div class="h-8 w-24 rounded-lg shimmer-layer shrink-0"></div>
+      <div class="h-8 w-20 rounded-lg shimmer-layer shrink-0"></div>
+    </div>
+
+    <!-- Skeleton Job Cards Grid (Matches RozgarHub Card Structure) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+      <% for (let i = 0; i < 9; i++) { %>
+        <div class="p-3 rounded-lg bg-[#0F172A]/95 border border-white/[0.08] space-y-2.5">
+          <!-- Row 1: Title & End Date Badge -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="h-4 w-3/4 rounded shimmer-layer"></div>
+            <div class="h-4 w-14 rounded shimmer-layer opacity-70"></div>
+          </div>
+          <!-- Row 2: Tags & Commission -->
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <div class="flex gap-1.5 w-2/3">
+              <div class="h-3 w-12 rounded shimmer-layer opacity-60"></div>
+              <div class="h-3 w-16 rounded shimmer-layer opacity-60"></div>
+            </div>
+            <div class="h-3 w-8 rounded shimmer-layer opacity-50"></div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function() {
+    const progressBar = document.getElementById('global-progress-bar');
+    const skeletonOverlay = document.getElementById('page-skeleton-overlay');
+    let timer = null;
+
+    function startBufferingAnimation() {
+      if (!progressBar || !skeletonOverlay) return;
+
+      // 1. YouTube style progress bar initiation
+      progressBar.classList.remove('opacity-0');
+      progressBar.style.width = '35%';
+
+      setTimeout(() => {
+        if (progressBar.style.width !== '100%') progressBar.style.width = '75%';
+      }, 200);
+
+      // 2. Show skeleton if network takes more than 100ms (avoids flicker on instant cache)
+      timer = setTimeout(() => {
+        skeletonOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        progressBar.style.width = '90%';
+      }, 100);
+    }
+
+    function stopBufferingAnimation() {
+      if (!progressBar || !skeletonOverlay) return;
+      clearTimeout(timer);
+      progressBar.style.width = '100%';
+      setTimeout(() => {
+        progressBar.classList.add('opacity-0');
+        progressBar.style.width = '0%';
+        skeletonOverlay.classList.add('opacity-0', 'pointer-events-none');
+      }, 250);
+    }
+
+    // Intercept internal link navigation
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a');
+      if (!link) return;
+
+      const href = link.getAttribute('href');
+      const target = link.getAttribute('target');
+
+      // Only trigger for standard internal links
+      if (
+        href &&
+        !href.startsWith('#') &&
+        !href.startsWith('javascript:') &&
+        !href.startsWith('tel:') &&
+        !href.startsWith('mailto:') &&
+        target !== '_blank' &&
+        !e.ctrlKey && !e.metaKey && !e.shiftKey
+      ) {
+        startBufferingAnimation();
+      }
+    });
+
+    // Native browser lifecycle events
+    window.addEventListener('beforeunload', startBufferingAnimation);
+    window.addEventListener('pageshow', stopBufferingAnimation);
+  })();
+</script>

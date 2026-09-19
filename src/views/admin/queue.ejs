@@ -1,0 +1,173 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full pb-20">
+  <%- include('nav') %>
+
+  <!-- Queue Header & Metrics -->
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4 mb-4">
+      <div>
+        <h1 class="text-xl font-black text-white flex items-center gap-2">
+          <span>📥 Review Queue (Automated Crawler Ingestion)</span>
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">Review, approve, or discard scraped notices. Duplicate entries are automatically flagged.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-3 py-1.5 rounded-xl">
+          Pending: <%= (pendingItems || []).length %>
+        </span>
+        <% if ((pendingItems || []).length > 0) { %>
+          <form action="<%= secretUrl %>/queue/approve-all" method="POST" class="inline" onsubmit="return confirm('Approve all pending items at once?')">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-md">
+              ✓ Approve All
+            </button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Smart Filter Controls -->
+    <div class="flex flex-wrap items-center gap-2 pt-1">
+      <button onclick="filterQueue('all')" id="btn-all" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-accent text-white transition-all">
+        All Items (<%= (pendingItems || []).length %>)
+      </button>
+      <button onclick="filterQueue('unique')" id="btn-unique" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-emerald-300 border border-emerald-500/30 transition-all">
+        ✓ Unique Only (<%= (pendingItems || []).filter(p => !p.duplicate_score || p.duplicate_score < 70).length %>)
+      </button>
+      <button onclick="filterQueue('duplicate')" id="btn-duplicate" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-rose-300 border border-rose-500/30 transition-all">
+        ⚠️ Flagged Duplicates (<%= (pendingItems || []).filter(p => p.duplicate_score >= 70).length %>)
+      </button>
+    </div>
+  </div>
+
+  <!-- Queue Items List -->
+  <div class="space-y-4" id="queue-container">
+    <% if (!pendingItems || pendingItems.length === 0) { %>
+      <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-12 text-center">
+        <div class="text-4xl mb-3">🎉</div>
+        <h3 class="text-base font-bold text-white">Queue is Empty</h3>
+        <p class="text-xs text-slate-400 mt-1">All scraped notices have been reviewed and published.</p>
+      </div>
+    <% } else { %>
+      <% pendingItems.forEach(function(item) { 
+           const isDup = item.duplicate_score >= 70;
+      %>
+        <div class="queue-card bg-[#0F172A] border <%= isDup ? 'border-rose-500/30 bg-rose-950/10' : 'border-white/10' %> rounded-2xl p-5 transition-all shadow-lg" data-dup="<%= isDup ? 'yes' : 'no' %>">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-md bg-white/5 text-slate-300 border border-white/10">
+                  <%= item.category || "Latest Jobs" %></span> <% if (item.is_recheck) { %><span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 ml-2">⚠️ Old Post (Re-Check)</span><% } %><span>
+                </span>
+                
+                <% if (isDup) { %>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold">
+                    ⚠️ <%= item.duplicate_score %>% Duplicate
+                  </span>
+                <% } else { %>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    ✓ Verified Unique (<%= item.duplicate_score || 0 %>%)
+                  </span>
+                <% } %>
+                
+                <span class="text-[10px] text-slate-400 font-mono"><%= item.created_at %></span>
+              </div>
+
+              <h3 class="text-base font-bold text-white leading-snug break-words">
+                <%= item.title %>
+              </h3>
+
+              <% if (isDup && item.duplicate_of_title) { %>
+                <div class="mt-2 p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs text-rose-200">
+                  <span class="font-bold text-rose-300">Matches Existing Post:</span> 
+                  <span class="text-slate-200 italic">"<%= item.duplicate_of_title %>"</span>
+                </div>
+              <% } %>
+
+              <!-- Extracted Metadata Pills -->
+              <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-300">
+                <% if (item.organization) { %>
+                  <span class="text-slate-400">🏛️ <%= item.organization %></span>
+                <% } %>
+                <% if (item.total_posts && item.total_posts !== 'Check Notification') { %>
+                  <span class="bg-indigo-500/10 text-indigo-300 px-2 py-1 rounded-lg border border-indigo-500/20 font-mono">
+                    👥 Posts: <strong><%= item.total_posts %></strong>
+                  </span>
+                <% } %>
+                <% if (item.application_end && item.application_end !== 'Refer Notice') { %>
+                  <span class="bg-amber-500/10 text-amber-300 px-2 py-1 rounded-lg border border-amber-500/20 font-mono">
+                    📅 Last Date: <strong><%= item.application_end %></strong>
+                  </span>
+                <% } %>
+                <% if (item.apply_url) { %>
+                  <a href="<%= item.apply_url %>" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline flex items-center gap-1 font-mono text-[11px]">
+                    🔗 Official Notice Link ↗
+                  </a>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Review Actions (Matched with adminPostsController) -->
+            <div class="flex items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-white/10">
+              <a href="<%= secretUrl %>/edit/queue/<%= item.id %>" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-all">
+                ✏️ Edit
+              </a>
+              <form action="<%= secretUrl %>/queue/approve" method="POST" class="inline">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="id" value="<%= item.id %>">
+                <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md">
+                  ✓ Approve
+                </button>
+              </form>
+              <form action="<%= secretUrl %>/queue/reject" method="POST" class="inline" onsubmit="return confirm('Reject and discard this notification?')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="id" value="<%= item.id %>">
+                <button type="submit" class="p-2 rounded-xl text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all" title="Reject">
+                  🗑️
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</main>
+
+<script>
+function filterQueue(type) {
+  const cards = document.querySelectorAll('.queue-card');
+  const btns = ['btn-all', 'btn-unique', 'btn-duplicate'];
+  
+  btns.forEach(b => {
+    const el = document.getElementById(b);
+    if (el) {
+      el.classList.remove('bg-brand-accent', 'text-white');
+      el.classList.add('bg-white/5');
+    }
+  });
+
+  const activeBtn = document.getElementById('btn-' + type);
+  if (activeBtn) {
+    activeBtn.classList.add('bg-brand-accent', 'text-white');
+    activeBtn.classList.remove('bg-white/5');
+  }
+
+  cards.forEach(card => {
+    const isDup = card.getAttribute('data-dup') === 'yes';
+    if (type === 'all') {
+      card.style.display = 'block';
+    } else if (type === 'unique') {
+      card.style.display = isDup ? 'none' : 'block';
+    } else if (type === 'duplicate') {
+      card.style.display = isDup ? 'block' : 'none';
+    }
+  });
+}
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,88 @@
+<div class="bg-brand-card border border-brand-border rounded-2xl p-4 sm:p-5 shadow-2xl mb-6">
+  <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 mb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-black text-white text-xs shadow-md">
+        CMS
+      </div>
+      <div>
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          Admin Control Plane
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </div>
+        <div class="text-[11px] text-slate-400 font-mono flex items-center gap-1.5">
+          <span><%= (typeof user !== 'undefined' && user && user.username) ? user.username : (locals.user ? locals.user.username : 'Admin') %></span>
+          <span class="text-white/20">•</span>
+          <span class="text-cyan-400 font-bold"><%= (typeof user !== 'undefined' && user && user.role) ? user.role : (locals.user ? locals.user.role : 'SUPER_ADMIN') %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+    <!-- 1. Dashboard -->
+    <a href="<%= secretUrl %>/dashboard" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/5 transition flex items-center gap-1.5">
+      <span>🏠</span> Dashboard
+    </a>
+
+    <!-- 2. Live Posts -->
+    <a href="<%= secretUrl %>/posts" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/5 transition flex items-center gap-1.5">
+      <span>📋</span> Live Posts
+      <% const liveCount = (typeof stats !== 'undefined' && stats.published != null) ? stats.published : ((typeof posts !== 'undefined' && Array.isArray(posts)) ? posts.length : null); %>
+      <% if (liveCount !== null) { %>
+        <span class="ml-1 px-1.5 py-0.2 rounded-md bg-indigo-500/20 text-indigo-300 text-[10px] font-mono"><%= liveCount %></span>
+      <% } %>
+    </a>
+
+    <!-- 3. Review Queue -->
+    <a href="<%= secretUrl %>/queue" class="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/20 hover:bg-amber-500/20 transition flex items-center gap-1.5">
+      <span>🗂️</span> Review Queue
+      <% const pendingCount = (typeof stats !== 'undefined' && stats.pending != null) ? stats.pending : ((typeof queue !== 'undefined' && Array.isArray(queue)) ? queue.length : null); %>
+      <% if (pendingCount !== null) { %>
+        <span class="ml-1 px-1.5 py-0.2 rounded-md bg-amber-400/20 text-amber-300 text-[10px] font-mono"><%= pendingCount %></span>
+      <% } %>
+    </a>
+
+    <!-- 4. Visitor Analytics -->
+    <a href="<%= secretUrl %>/analytics" class="px-3 py-1.5 rounded-xl bg-sky-500/10 text-sky-300 border border-sky-500/20 hover:bg-sky-500/20 transition flex items-center gap-1.5">
+      <span>📊</span> Visitor Analytics
+    </a>
+
+    <!-- 5. Trending Engine -->
+    <a href="<%= secretUrl %>/trending" class="px-3 py-1.5 rounded-xl bg-orange-500/10 text-orange-300 border border-orange-500/20 hover:bg-orange-500/20 transition flex items-center gap-1.5">
+      <span>🔥</span> Trending
+    </a>
+
+    
+    <!-- API Key Management -->
+    <a href="<%= secretUrl %>/api-key" class="px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20 transition flex items-center gap-1.5">
+      <span>🔑</span> API Key
+    </a>
+
+    <!-- 6. Social Push (Separate Page) -->
+    <a href="<%= secretUrl %>/broadcast" class="px-3 py-1.5 rounded-xl bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/25 transition flex items-center gap-1.5">
+      <span>📢</span> Social Push
+    </a>
+
+    <!-- 7. New Post (Accent Action) -->
+    <a href="<%= secretUrl %>/new" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-lg shadow-indigo-600/30 flex items-center gap-1">
+      <span>+</span> New Post
+    </a>
+
+    <!-- 8. Branding / Settings -->
+    <a href="<%= secretUrl %>/settings" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 transition flex items-center gap-1.5">
+      <span>⚙️</span> Branding
+    </a>
+
+    <!-- 9. Ads Management -->
+    <a href="<%= secretUrl %>/ads" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 transition flex items-center gap-1.5">
+      <span>💰</span> Ads
+    </a>
+
+    <!-- 10. Lock & Exit -->
+    <form action="<%= secretUrl %>/logout" method="POST" class="inline m-0">
+      <button type="submit" class="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 hover:bg-rose-500/20 transition text-xs font-semibold">
+        Lock & Exit
+      </button>
+    </form>
+  </div>
+</div>

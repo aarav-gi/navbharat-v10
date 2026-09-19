@@ -1,0 +1,136 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-3xl mx-auto px-4 py-8 flex-1 w-full">
+  <%- include('nav') %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl">
+    <div class="border-b border-white/10 pb-4 mb-6">
+      <h1 class="text-xl font-bold text-white">Ads & Revenue Management</h1>
+      <p class="text-xs text-slate-400 mt-1">Each slot can run an ad-network embed code, or an uploaded banner image with a click-through link.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs p-3 rounded-xl mb-4 text-center font-bold"><%= success %></div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-xl mb-4 text-center font-bold">⚠️ <%= error %></div>
+    <% } %>
+
+    <form action="<%= secretUrl %>/ads" method="POST" class="space-y-5 text-xs" id="adsForm">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <!-- Master Switch -->
+      <div class="p-4 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-white">Master Ads Toggle</h3>
+          <p class="text-slate-400 text-[11px]">Instantly enable or disable all advertisements across the platform.</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" name="enabled" value="true" <%= settings.ads && settings.ads.enabled ? 'checked' : '' %> class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+        </label>
+      </div>
+
+      <%
+        const slotMeta = {
+          top: { label: 'Top Billboard (728x90)', color: 'cyan' },
+          content: { label: 'In-Content Native', color: 'amber' },
+          bottom: { label: 'Bottom Banner', color: 'emerald' }
+        };
+      %>
+
+      <% ['top', 'content', 'bottom'].forEach(key => { const slot = settings.ads.slots[key]; const m = slotMeta[key]; %>
+      <div class="p-4 rounded-xl bg-white/[0.02] border border-white/10 space-y-3">
+        <h3 class="font-bold text-slate-200"><%= m.label %></h3>
+
+        <!-- Type selector -->
+        <div class="flex gap-4 text-[11px]">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="<%= key %>_type" value="none" class="slot-type-radio" data-slot="<%= key %>" <%= slot.type === 'none' ? 'checked' : '' %>> None
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="<%= key %>_type" value="code" class="slot-type-radio" data-slot="<%= key %>" <%= slot.type === 'code' ? 'checked' : '' %>> Embed Code (AdSense etc.)
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="radio" name="<%= key %>_type" value="image" class="slot-type-radio" data-slot="<%= key %>" <%= slot.type === 'image' ? 'checked' : '' %>> Upload Banner Image
+          </label>
+        </div>
+
+        <!-- Code panel -->
+        <div id="<%= key %>_panel_code" class="slot-panel" style="display:<%= slot.type === 'code' ? 'block' : 'none' %>">
+          <label class="block text-slate-400 mb-1">Ad network embed code</label>
+          <textarea name="<%= key %>_code" rows="3" class="w-full font-mono bg-[#161F30] border border-white/10 rounded-xl p-3 text-<%= m.color %>-300 text-[11px]"><%= slot.code %></textarea>
+        </div>
+
+        <!-- Image panel -->
+        <div id="<%= key %>_panel_image" class="slot-panel" style="display:<%= slot.type === 'image' ? 'block' : 'none' %>">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1">Banner image (PNG/JPEG/WebP/GIF, max 2MB)</label>
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" class="banner-file-input w-full text-slate-300 text-[11px]" data-slot="<%= key %>">
+              <input type="hidden" name="<%= key %>_imageData" class="banner-image-data" data-slot="<%= key %>">
+              <% if (slot.imageUrl) { %>
+                <img src="<%= slot.imageUrl %>" alt="Current <%= m.label %> banner" class="banner-preview mt-2 max-h-20 rounded-lg border border-white/10" data-slot="<%= key %>">
+              <% } else { %>
+                <img class="banner-preview mt-2 max-h-20 rounded-lg border border-white/10 hidden" data-slot="<%= key %>">
+              <% } %>
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Click-through link (where the banner sends visitors)</label>
+              <input type="url" name="<%= key %>_linkUrl" value="<%= slot.linkUrl %>" placeholder="https://..." class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3 py-2 text-white">
+              <label class="block text-slate-400 mb-1 mt-2">Alt text (accessibility)</label>
+              <input type="text" name="<%= key %>_altText" value="<%= slot.altText %>" placeholder="e.g. Sponsor name / offer" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3 py-2 text-white">
+            </div>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+
+      <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-cyan-600/30 text-xs">
+        💰 Update Ads Engine Configuration
+      </button>
+
+    </form>
+  </div>
+</main>
+
+<script>
+  // Toggle which panel (code / image) is visible per slot.
+  document.querySelectorAll('.slot-type-radio').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const slot = radio.dataset.slot;
+      document.getElementById(`${slot}_panel_code`).style.display = 'none';
+      document.getElementById(`${slot}_panel_image`).style.display = 'none';
+      if (radio.value === 'code') document.getElementById(`${slot}_panel_code`).style.display = 'block';
+      if (radio.value === 'image') document.getElementById(`${slot}_panel_image`).style.display = 'block';
+    });
+  });
+
+  // Convert a selected banner file to a base64 data URL client-side (no
+  // multipart upload endpoint needed) and preview it before saving.
+  document.querySelectorAll('.banner-file-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+
+      const MAX_BYTES = 2 * 1024 * 1024;
+      if (file.size > MAX_BYTES) {
+        alert('Image is larger than 2MB — please choose a smaller file.');
+        input.value = '';
+        return;
+      }
+
+      const slot = input.dataset.slot;
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.querySelector(`.banner-image-data[data-slot="${slot}"]`).value = reader.result;
+        const preview = document.querySelector(`.banner-preview[data-slot="${slot}"]`);
+        preview.src = reader.result;
+        preview.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

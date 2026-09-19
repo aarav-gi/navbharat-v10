@@ -1,0 +1,76 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-3xl mx-auto px-4 py-8 flex-1 w-full">
+  <%- include('nav') %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4 mb-6">
+      <div>
+        <h1 class="text-xl font-bold text-white flex items-center gap-2">
+          <span>🔑</span> Ingestion API Key
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">प्राइवेट रिव्यू वेबसाइट से डेटा पुश करने के लिए अधिकृत 24-घंटे वाली टोकन कुंजी।</p>
+      </div>
+      <div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold border <%= !isExpired ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-rose-500/10 text-rose-400 border-rose-500/30' %>">
+          <%= !isExpired ? '● ACTIVE (VALID)' : '● EXPIRED' %>
+        </span>
+      </div>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs p-3 rounded-xl mb-6 text-center font-bold">
+        <%= success %>
+      </div>
+    <% } %>
+
+    <div class="space-y-6 text-xs">
+      <div>
+        <label class="block text-slate-300 font-semibold mb-2">Current Active Key (Bearer / Header Token)</label>
+        <div class="flex items-center gap-2">
+          <input type="text" id="activeKeyInput" readonly value="<%= currentKey ? currentKey.key_value : 'No active key' %>" 
+                 class="w-full bg-[#161F30] font-mono border border-white/10 rounded-xl px-3.5 py-3 text-cyan-300 select-all tracking-wider">
+          <button type="button" onclick="copyKey()" class="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition flex items-center gap-1.5 shrink-0">
+            <span id="copyBtnText">Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#161F30]/60 p-4 rounded-xl border border-white/5">
+        <div>
+          <span class="text-slate-400 block mb-1">बनने का समय (Created At):</span>
+          <span class="text-slate-200 font-mono font-semibold"><%= currentKey ? currentKey.local_created : 'N/A' %></span>
+        </div>
+        <div>
+          <span class="text-slate-400 block mb-1">समाप्ति का समय (Expires In 24h):</span>
+          <span class="text-rose-400 font-mono font-semibold"><%= currentKey ? currentKey.local_expiry : 'N/A' %></span>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+        <p class="text-slate-400 text-[11px] max-w-sm">
+          ⚠️ रीजेनरेट करने पर पुरानी कुंजी तुरंत रद्द हो जाएगी और नई 24-घंटे वाली कुंजी सक्रिय हो जाएगी।
+        </p>
+        <form action="<%= secretUrl %>/api-key/regenerate" method="POST" onsubmit="return confirm('क्या आप सचमुच नई 24-घंटे वाली API Key बनाना चाहते हैं? पुरानी Key तुरंत अमान्य हो जाएगी।');">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="px-4 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl font-bold transition flex items-center gap-2">
+            <span>🔄</span> Generate New 24h Key
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+function copyKey() {
+  const input = document.getElementById('activeKeyInput');
+  input.select();
+  navigator.clipboard.writeText(input.value);
+  const btn = document.getElementById('copyBtnText');
+  btn.textContent = "Copied! ✓";
+  setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+}
+</script>
+
+<%- include('../partials/footer') %>

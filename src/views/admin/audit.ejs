@@ -1,0 +1,59 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full pb-20">
+  <%- include('nav') %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl mb-6">
+    <h1 class="text-xl font-bold text-white mb-1">Audit Log</h1>
+    <p class="text-xs text-slate-400 mb-4">Administrative actions — logins, publishing, settings changes. Most recent 200 events.</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-white/5 text-slate-400 border-b border-white/10">
+          <tr>
+            <th class="p-3">Time (UTC)</th>
+            <th class="p-3">User</th>
+            <th class="p-3">Action</th>
+            <th class="p-3">Entity</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5 text-slate-300">
+          <% logs.forEach(l => { %>
+            <tr>
+              <td class="p-3 font-mono text-slate-400"><%= l.created_at %></td>
+              <td class="p-3"><%= l.username || '—' %></td>
+              <td class="p-3 font-mono text-indigo-300"><%= l.action %></td>
+              <td class="p-3 text-slate-400"><%= l.entity_type ? `${l.entity_type}:${l.entity_id}` : '' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl">
+    <h1 class="text-xl font-bold text-white mb-1">Security Events</h1>
+    <p class="text-xs text-slate-400 mb-4">Rate-limit blocks, CSRF failures, unauthorized admin-path probes. Most recent 100 events.</p>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-white/5 text-slate-400 border-b border-white/10">
+          <tr>
+            <th class="p-3">Time (UTC)</th>
+            <th class="p-3">Event</th>
+            <th class="p-3">Detail</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5 text-slate-300">
+          <% securityEvents.forEach(e => { %>
+            <tr>
+              <td class="p-3 font-mono text-slate-400"><%= e.created_at %></td>
+              <td class="p-3 font-mono text-rose-300"><%= e.event_type %></td>
+              <td class="p-3 text-slate-400 truncate max-w-md"><%= e.detail %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

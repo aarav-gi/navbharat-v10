@@ -1,0 +1,40 @@
+<% if (typeof settings !== 'undefined' && settings && settings.ads && settings.ads.enabled) { %>
+  <%
+    const currentSlot = typeof slotType !== 'undefined' ? slotType : 'top';
+    const slot = settings.ads.slots ? settings.ads.slots[currentSlot] : null;
+  %>
+  <div class="my-6 mx-auto flex flex-col items-center justify-center w-full max-w-[728px] px-2">
+    <!-- Sponsored Label -->
+    <div class="flex items-center gap-2 mb-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+      <span class="text-[9px] text-slate-400 font-mono uppercase tracking-widest">Sponsored / विज्ञापन</span>
+    </div>
+
+    <!-- Outer Frame -->
+    <div class="w-full bg-[#080d1a]/95 border border-white/10 rounded-2xl p-3 shadow-inner shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+      
+      <!-- Inner White/Light Card as per original design -->
+      <div class="w-full bg-[#0b132b]/80 border border-white/10 text-white backdrop-blur-xl rounded-xl p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-md">
+        
+        <span class="text-[10px] font-mono tracking-widest text-slate-400 uppercase mb-2">Advertisement · Demo</span>
+        
+        <h3 class="text-base sm:text-lg font-bold text-slate-800 tracking-tight">Find Your Dream Job</h3>
+        
+        <div class="flex items-center gap-3 my-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xs shadow-md">
+            RH
+          </div>
+          <p class="text-xs sm:text-sm text-slate-300 font-medium text-left">
+            Latest government &amp; private job opportunities.
+          </p>
+        </div>
+
+        <a href="#board-jobs" onclick="if (typeof jumpToBoard === 'function') jumpToBoard('board-jobs');" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold px-6 py-2 rounded-xl transition-all shadow-md shadow-blue-500/30">
+          Explore Jobs
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+<% } %>

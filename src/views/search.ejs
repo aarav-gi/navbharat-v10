@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full pb-20">
+
+  <div class="text-center py-6 max-w-2xl mx-auto">
+    <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight leading-tight">🔍 Search</h1>
+    <p class="text-slate-400 text-xs md:text-sm mt-2">Search across every published job, admit card, result, answer key and syllabus.</p>
+  </div>
+
+  <section class="bg-brand-card border border-brand-border rounded-2xl p-5 shadow-2xl mb-8 max-w-2xl mx-auto">
+    <form method="get" action="/search" class="flex gap-2">
+      <input
+        type="text"
+        name="q"
+        value="<%= query %>"
+        placeholder="e.g. SSC CGL, Railway, Bihar Police..."
+        class="flex-1 bg-[#162032] border border-brand-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-accent placeholder-slate-500"
+        autofocus
+      >
+      <button type="submit" class="px-5 py-3 rounded-xl bg-brand-accent hover:bg-indigo-500 text-white text-sm font-bold transition">
+        Search
+      </button>
+    </form>
+  <%- include('partials/ad-slot', { slotType: 'top' }) %>
+
+  </section>
+
+  <% if (query && query.trim().length > 0) { %>
+    <div class="flex items-center justify-between mb-4 border-b border-brand-border pb-2">
+      <h2 class="text-sm font-bold text-slate-300">
+        <%= results.length %> result<%= results.length === 1 ? '' : 's' %> for "<%= query %>"
+      </h2>
+    </div>
+
+    <% if (results.length === 0) { %>
+      <div class="mt-4 p-6 rounded-xl bg-brand-rose/10 border border-brand-rose/30 text-brand-rose text-center text-xs font-bold">
+        ❌ No matching listings found. Try a different keyword, organization name, or state.
+      </div>
+    <% } else { %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% results.forEach(item => { %>
+          <a href="/<%= item.category %>/<%= item.slug %>"
+             class="flex flex-col justify-between p-4 rounded-2xl bg-brand-card hover:bg-brand-cardHover border border-brand-border hover:border-brand-accent/50 transition group shadow-lg">
+            <div>
+              <span class="text-[10px] font-mono text-brand-cyan bg-brand-cyan/10 px-2 py-0.5 rounded-md border border-brand-cyan/20 uppercase">
+                <%= item.category %>
+              </span>
+              <h3 class="text-sm font-bold text-slate-100 group-hover:text-brand-accent transition leading-snug mt-2">
+                <%= item.title %>
+              </h3>
+              <p class="text-[11px] text-slate-400 mt-1 line-clamp-1"><%= item.organization %></p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-brand-border/60 flex items-center justify-between text-[10px] text-slate-400">
+              <span class="font-medium bg-white/5 px-2 py-0.5 rounded text-slate-300">
+                Seats: <%= item.totalPosts || 'Refer PDF' %>
+              </span>
+              <span class="font-mono font-semibold text-brand-rose">End: <%= item.applicationEnd %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  <% } %>
+
+</main>
+
+<%- include('partials/ad-slot', { slotType: 'bottom' }) %>
+<%- include('partials/footer') %>

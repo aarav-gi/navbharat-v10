@@ -1,0 +1,132 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-4xl mx-auto px-4 py-8 flex-1 w-full pb-20">
+  <%- include('nav') %>
+
+  <div class="mb-6">
+    <h1 class="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+      <span>📢</span> Social Media Broadcaster
+    </h1>
+    <p class="text-xs text-slate-400 mt-1">
+      Telegram, Facebook और WhatsApp पर वेबसाइट का लिंक और पोस्टर शेयर करके ट्रैफ़िक लाएं।
+    </p>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+      <span>✅</span> <%= success %>
+    </div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-semibold flex items-center gap-2">
+      <span>❌</span> <%= error %>
+    </div>
+  <% } %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
+    <form action="<%= secretUrl %>/broadcast/send?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data" class="space-y-5 text-xs">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <!-- 1. Quick Fill from Existing Post -->
+      <div class="bg-indigo-950/40 border border-indigo-500/20 p-4 rounded-xl">
+        <label class="block text-indigo-300 font-bold mb-1.5">⚡ अपनी किसी लाइव पोस्ट से लिंक और टाइटल भरें (वैकल्पिक):</label>
+        <select id="quickPostSelect" onchange="autoFillPost(this)" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3 py-2.5 text-white">
+          <option value="">-- ड्रॉपडाउन से पोस्ट चुनें --</option>
+          <% if (typeof posts !== 'undefined' && Array.isArray(posts)) { %>
+            <% posts.forEach(p => { %>
+              <option value="<%= p.category %>/<%= p.slug %>" data-title="<%= p.title %>">
+                [<%= p.category.toUpperCase() %>] <%= p.title %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+        <span class="text-[10px] text-indigo-400/80 mt-1 block">इसे सिलेक्ट करते ही नीचे टाइटल और वेबसाइट लिंक अपने आप भर जाएंगे।</span>
+      </div>
+
+      <!-- 2. Broadcast Title -->
+      <div>
+        <label class="block text-slate-300 font-bold mb-1">📌 Alert Title / Heading *</label>
+        <input id="postTitle" type="text" name="title" required placeholder="उदा: SSC GD Constable 2026 बंपर भर्ती जारी"
+               class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white font-semibold">
+      </div>
+
+      <!-- 3. Target Website Link -->
+      <div>
+        <label class="block text-slate-300 font-bold mb-1">🔗 Website Target Link (यूज़र इस लिंक पर क्लिक करेगा) *</label>
+        <div class="flex items-center">
+          <span class="bg-white/5 border border-r-0 border-white/10 rounded-l-xl px-3 py-2.5 text-slate-400 select-none text-[11px]">
+            <%= (typeof siteUrl !== 'undefined' && siteUrl) ? siteUrl.replace(/\/+$/, '') : '' %>/
+          </span>
+          <input id="postLink" type="text" name="targetUrl" required placeholder="latest-jobs/ssc-gd-2026 या पूरा URL"
+                 class="w-full bg-[#161F30] border border-white/10 rounded-r-xl px-3 py-2.5 text-white font-mono text-xs">
+        </div>
+      </div>
+
+      <!-- 4. Poster / Image Upload -->
+      <div>
+        <label class="block text-slate-300 font-bold mb-1">🖼️ Poster / Banner Image (वैकल्पिक)</label>
+        <input type="file" name="banner" accept="image/*"
+               class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3 py-2 text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer">
+      </div>
+
+      <!-- 5. Custom Message / Teaser -->
+      <div>
+        <label class="block text-slate-300 font-bold mb-1">📝 Custom Message / Caption (वैकल्पिक):</label>
+        <textarea name="customText" rows="3" placeholder="खाली छोड़ने पर डिफ़ॉल्ट 'सस्पेंस/टीज़र' मैसेज जाएगा जिससे छात्र वेबसाइट पर क्लिक करेंगे।"
+                  class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white"></textarea>
+      </div>
+
+      <!-- 6. Platform Channels -->
+      <div class="pt-3 border-t border-white/10">
+        <label class="block text-slate-300 font-bold mb-2">किन-किन सोशल प्लेटफॉर्म्स पर भेजना है?</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          
+          <label class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer hover:bg-white/[0.06]">
+            <input type="checkbox" name="broadcast_telegram" value="1" checked class="w-4 h-4 rounded text-indigo-600">
+            <div>
+              <span class="text-xs font-bold text-sky-400 block">✈️ Telegram Channel</span>
+              <span class="text-[10px] text-slate-400">Photo + Markdown + Link</span>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer hover:bg-white/[0.06]">
+            <input type="checkbox" name="broadcast_facebook" value="1" checked class="w-4 h-4 rounded text-indigo-600">
+            <div>
+              <span class="text-xs font-bold text-blue-400 block">📘 Facebook Page</span>
+              <span class="text-[10px] text-slate-400">Photo & Clickable Link</span>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/10 cursor-pointer hover:bg-white/[0.06]">
+            <input type="checkbox" name="broadcast_whatsapp" value="1" checked class="w-4 h-4 rounded text-indigo-600">
+            <div>
+              <span class="text-xs font-bold text-emerald-400 block">💬 WhatsApp Channel</span>
+              <span class="text-[10px] text-slate-400">Webhook Broadcast</span>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Submit Action -->
+      <div class="pt-2">
+        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600 hover:opacity-95 text-white font-extrabold py-3.5 rounded-xl transition shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2">
+          <span>🚀</span> Send 1-Click Blast Broadcast
+        </button>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<script>
+  function autoFillPost(select) {
+    const opt = select.options[select.selectedIndex];
+    if (!opt || !opt.value) return;
+    document.getElementById('postTitle').value = opt.getAttribute('data-title') || '';
+    document.getElementById('postLink').value = opt.value;
+  }
+</script>
+
+<%- include('../partials/footer') %>

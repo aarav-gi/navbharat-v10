@@ -1,0 +1,9 @@
+<%
+  /* siteJsonLd is pre-built once per request in server.js middleware (see
+     the comment there) — this partial only serializes it. No require()
+     calls belong inside a EJS block: ejs compiles templates with
+     `new Function(...)`, which does not have access to Node's `require`. */
+%>
+<% if (typeof siteJsonLd !== 'undefined' && siteJsonLd) { %>
+<script type="application/ld+json"><%- siteJsonLd %></script>
+<% } %>

@@ -1,0 +1,40 @@
+<%- include('partials/header') %>
+
+<main class="max-w-md mx-auto px-4 py-16 flex-1 w-full">
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-8 shadow-2xl">
+    <div class="text-center mb-6">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+      </div>
+      <h1 class="text-xl font-black text-white">Admin Sign In</h1>
+      <p class="text-xs text-slate-400 mt-1">Authorized personnel only. This access is logged.</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs p-3 rounded-xl mb-4 text-center font-semibold">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form action="<%= loginAction %>" method="POST" class="space-y-4 text-xs">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Secret Username</label>
+        <input type="text" name="username" required autocomplete="off" placeholder="Enter username" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Secret Password</label>
+        <input type="password" name="password" required autocomplete="off" placeholder="••••••••••••" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-indigo-600/30 text-xs mt-2">
+        🔓 Authenticate Credentials
+      </button>
+    </form>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

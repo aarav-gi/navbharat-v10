@@ -1,0 +1,116 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full pb-20">
+  <%- include('nav') %>
+
+  <!-- Header -->
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4 mb-6">
+      <div>
+        <h1 class="text-xl font-black text-white flex items-center gap-2">
+          <span>📊 Real-Time Daily Visitor Analytics</span>
+        </h1>
+        <p class="text-xs text-slate-400 mt-1">Live anonymous visitor logs, daily traffic growth, and most viewed job notices.</p>
+      </div>
+      <span class="text-xs font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-xl">
+        ● Live Engine Active
+      </span>
+    </div>
+
+    <!-- Snapshot Metrics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      
+      <!-- Today's Unique Visitors -->
+      <div class="bg-[#141E33] border border-white/[0.08] rounded-2xl p-5">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Today's Unique Visitors</span>
+        <div class="text-3xl font-black text-white mt-1 font-mono"><%= todayUnique %></div>
+        <p class="text-[11px] text-emerald-400 mt-1 font-medium">Unique candidates browsing today</p>
+      </div>
+
+      <!-- Today's Total Pageviews -->
+      <div class="bg-[#141E33] border border-white/[0.08] rounded-2xl p-5">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Today's Total Pageviews</span>
+        <div class="text-3xl font-black text-cyan-300 mt-1 font-mono"><%= todayViews %></div>
+        <p class="text-[11px] text-slate-400 mt-1 font-medium">Pages accessed across all sections</p>
+      </div>
+
+      <!-- All-Time Pageviews -->
+      <div class="bg-[#141E33] border border-white/[0.08] rounded-2xl p-5">
+        <span class="text-xs font-mono text-slate-400 uppercase tracking-wider">Total All-Time Pageviews</span>
+        <div class="text-3xl font-black text-indigo-400 mt-1 font-mono"><%= totalViews %></div>
+        <p class="text-[11px] text-slate-400 mt-1 font-medium">Cumulative lifetime impressions</p>
+      </div>
+
+    </div>
+
+    <!-- 2 Column Layout: Daily Breakdown & Top Pages -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Table: Last 14 Days History -->
+      <div class="bg-[#141E33] border border-white/[0.08] rounded-2xl p-5">
+        <h2 class="text-sm font-bold text-white mb-3 flex items-center justify-between">
+          <span>📅 Daily Traffic Breakdown (Roj Ka Record)</span>
+          <span class="text-[10px] text-slate-400 font-mono">Last 14 Days</span>
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-white/5 text-slate-300 border-b border-white/10">
+              <tr>
+                <th class="p-2.5">Date</th>
+                <th class="p-2.5 font-mono text-right">Unique Visitors</th>
+                <th class="p-2.5 font-mono text-right">Pageviews</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-slate-300">
+              <% if (dailyHistory.length === 0) { %>
+                <tr><td colspan="3" class="p-4 text-center text-slate-500">No visitor records yet. Browse the site to log traffic!</td></tr>
+              <% } else { %>
+                <% dailyHistory.forEach(day => { %>
+                  <tr class="hover:bg-white/[0.02]">
+                    <td class="p-2.5 font-semibold text-white"><%= day.date %></td>
+                    <td class="p-2.5 font-mono text-emerald-400 text-right font-bold"><%= day.uniqueVisitors %></td>
+                    <td class="p-2.5 font-mono text-cyan-300 text-right"><%= day.pageviews %></td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Table: Most Visited Job Pages -->
+      <div class="bg-[#141E33] border border-white/[0.08] rounded-2xl p-5">
+        <h2 class="text-sm font-bold text-white mb-3 flex items-center justify-between">
+          <span>🔥 Top Most Visited Pages</span>
+          <span class="text-[10px] text-slate-400 font-mono">Candidate Hits</span>
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-white/5 text-slate-300 border-b border-white/10">
+              <tr>
+                <th class="p-2.5">Page Route</th>
+                <th class="p-2.5 font-mono text-right">Total Hits</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-slate-300">
+              <% if (topPages.length === 0) { %>
+                <tr><td colspan="2" class="p-4 text-center text-slate-500">No page views recorded yet.</td></tr>
+              <% } else { %>
+                <% topPages.forEach(p => { %>
+                  <tr class="hover:bg-white/[0.02]">
+                    <td class="p-2.5 font-mono text-slate-300 truncate max-w-xs"><%= p.route %></td>
+                    <td class="p-2.5 font-mono text-brand-amber text-right font-bold"><%= p.views %></td>
+                  </tr>
+                <% }) %>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

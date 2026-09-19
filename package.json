@@ -1,0 +1,37 @@
+{
+  "name": "rozgarhub",
+  "version": "2.0.0",
+  "description": "NavBharat Naukri — Government Jobs & Exam Information Platform",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "start:cluster": "node scripts/cluster.js",
+    "dev": "NODE_ENV=development node server.js",
+    "migrate:legacy": "node scripts/migrate-legacy-data.js",
+    "create-admin": "node scripts/create-admin.js",
+    "test": "echo \"No automated tests yet — see docs/TESTING.md for the planned suite\" && exit 0",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop navbharat-portal",
+    "pm2:restart": "pm2 restart navbharat-portal",
+    "pm2:logs": "pm2 logs navbharat-portal",
+    "pm2:status": "pm2 status"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cheerio": "^1.2.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.1.5",
+    "multer": "^2.4.0",
+    "pdf-parse": "^2.4.5",
+    "xlsx": "^0.18.5"
+  },
+  "license": "ISC"
+}

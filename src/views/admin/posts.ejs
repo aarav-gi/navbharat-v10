@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full pb-20">
+  <%- include('nav') %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl">
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+      <div>
+        <h1 class="text-xl font-bold text-white">All Published Live Posts</h1>
+        <p class="text-xs text-slate-400">Total <%= posts.length %> active recruitment listings currently accessible to candidates.</p>
+      </div>
+      <a href="<%= secretUrl %>/new" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl transition">
+        + Add New Post
+      </a>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs border-collapse">
+        <thead class="bg-white/5 text-slate-400 border-b border-white/10">
+          <tr>
+            <th class="p-3">Title</th>
+            <th class="p-3">Category</th>
+            <th class="p-3">Organization</th>
+            <th class="p-3">Deadline</th>
+            <th class="p-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5 text-slate-300">
+          <% posts.forEach(item => { %>
+            <tr class="hover:bg-white/[0.02]">
+              <td class="p-3 font-semibold text-white max-w-xs truncate"><%= item.title %></td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+                  <%= item.category %>
+                </span>
+              </td>
+              <td class="p-3 text-slate-400"><%= item.organization %></td>
+              <td class="p-3 text-rose-400 font-mono"><%= item.applicationEnd %></td>
+              <td class="p-3 text-right space-x-2">
+                <a href="/<%= item.category %>/<%= item.slug %>" target="_blank" class="px-2.5 py-1 bg-white/5 hover:bg-white/10 text-slate-300 rounded-lg transition">View</a>
+                <!-- EDIT LIVE POST -->
+                <a href="<%= secretUrl %>/edit/live/<%= item.id %>" class="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-lg transition font-medium">Edit</a>
+                <form action="<%= secretUrl %>/delete" method="POST" class="inline" onsubmit="return confirm('Confirm delete this post permanently?');">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="id" value="<%= item.id %>">
+                  <button type="submit" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg transition">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

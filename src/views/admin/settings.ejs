@@ -1,0 +1,87 @@
+<%- include('../partials/header') %>
+
+<main class="max-w-3xl mx-auto px-4 py-8 flex-1 w-full">
+  <%- include('nav') %>
+
+  <div class="bg-[#0F172A] border border-white/10 rounded-2xl p-6 shadow-xl">
+    <div class="border-b border-white/10 pb-4 mb-6">
+      <h1 class="text-xl font-bold text-white">Site Branding & Identity</h1>
+      <p class="text-xs text-slate-400 mt-1">Change website name, icon initials and global disclaimer instantaneously.</p>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs p-3 rounded-xl mb-4 text-center font-bold">
+        <%= success %>
+      </div>
+    <% } %>
+
+    <form action="<%= secretUrl %>/settings" method="POST" class="space-y-4 text-xs">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Website Brand Name</label>
+          <input type="text" name="siteName" value="<%= settings.siteName %>" required class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Logo Icon Text (1-4 chars)</label>
+          <input type="text" name="logoText" value="<%= settings.logoText %>" required maxlength="4" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white uppercase">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Header Tagline</label>
+        <input type="text" name="tagline" value="<%= settings.tagline %>" required class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white">
+      </div>
+
+      <div>
+        <label class="block text-slate-300 font-semibold mb-1">Footer Official Disclaimer</label>
+        <textarea name="footerDisclaimer" rows="3" required class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white leading-relaxed"><%= settings.footerDisclaimer %></textarea>
+      </div>
+
+      
+      <!-- Social Media Channels Management -->
+      <div class="border-t border-white/10 pt-5 mt-5">
+        <h2 class="text-sm font-bold text-white mb-1 flex items-center gap-1.5">
+          <span>📢</span> Social Media & Fast Alert Channels
+        </h2>
+        <p class="text-slate-400 text-[11px] mb-3">Top bar par direct access ke links customize karein. Kisi channel ko hide karne ke liye link ko khali chhod dein.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1">
+              <span class="text-[#229ED9]">●</span> Telegram Channel URL
+            </label>
+            <input type="url" name="social_telegram" value="<%= (settings.social && settings.social.telegram) || '' %>" placeholder="https://t.me/yourchannel" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 text-xs">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1">
+              <span class="text-[#25D366]">●</span> WhatsApp Channel URL
+            </label>
+            <input type="url" name="social_whatsapp" value="<%= (settings.social && settings.social.whatsapp) || '' %>" placeholder="https://whatsapp.com/channel/..." class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 text-xs">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1">
+              <span class="text-[#E1306C]">●</span> Instagram Profile URL
+            </label>
+            <input type="url" name="social_instagram" value="<%= (settings.social && settings.social.instagram) || '' %>" placeholder="https://instagram.com/yourpage" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 text-xs">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1 flex items-center gap-1">
+              <span class="text-[#1877F2]">●</span> Facebook Page URL
+            </label>
+            <input type="url" name="social_facebook" value="<%= (settings.social && settings.social.facebook) || '' %>" placeholder="https://facebook.com/yourpage" class="w-full bg-[#161F30] border border-white/10 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 text-xs">
+          </div>
+        </div>
+      </div>
+
+      
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-600/30 text-xs mt-2">
+        💾 Save Brand Configuration
+      </button>
+
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

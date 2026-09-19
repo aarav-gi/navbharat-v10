@@ -1,0 +1,893 @@
+<%- include('partials/header') %>
+
+<% if (typeof itemListJsonLd !== 'undefined' && itemListJsonLd) { %>
+  <script type="application/ld+json">
+    <%- itemListJsonLd %>
+  </script>
+<% } %>
+
+<%
+  // High-performance word boundary matching
+  function hasWord(text, word) {
+    if (!text || !word) return false;
+    return new RegExp('(?:^|[^a-zA-Z0-9])' + word.toLowerCase().trim() + '(?:[^a-zA-Z0-9]|$)', 'i').test(text);
+  }
+
+  function getState(org) {
+    const o = (org || '').toLowerCase();
+
+    // 8 Union Territories
+    if (hasWord(o, 'delhi') || hasWord(o, 'dsssb')) return 'Delhi';
+    if (hasWord(o, 'jammu') || hasWord(o, 'kashmir') || hasWord(o, 'jkssb') || hasWord(o, 'jkpsc')) return 'Jammu & Kashmir';
+    if (hasWord(o, 'ladakh')) return 'Ladakh';
+    if (hasWord(o, 'chandigarh')) return 'Chandigarh';
+    if (hasWord(o, 'puducherry') || hasWord(o, 'pondicherry')) return 'Puducherry';
+    if (hasWord(o, 'andaman')) return 'Andaman & Nicobar';
+    if (hasWord(o, 'lakshadweep')) return 'Lakshadweep';
+    if (hasWord(o, 'dadra') || hasWord(o, 'daman') || hasWord(o, 'diu')) return 'Dadra & Daman';
+
+    // 28 States
+    if (hasWord(o, 'uttar pradesh') || hasWord(o, 'uppsc') || hasWord(o, 'upsssc') || hasWord(o, 'up') || hasWord(o, 'uptet')) return 'Uttar Pradesh';
+    if (hasWord(o, 'bihar') || hasWord(o, 'bpsc') || hasWord(o, 'bssc') || hasWord(o, 'btsc') || hasWord(o, 'stet')) return 'Bihar';
+    if (hasWord(o, 'rajasthan') || hasWord(o, 'rpsc') || hasWord(o, 'rsmssb') || hasWord(o, 'rssb') || hasWord(o, 'reet')) return 'Rajasthan';
+    if (hasWord(o, 'madhya pradesh') || hasWord(o, 'mppsc') || hasWord(o, 'mp') || hasWord(o, 'mpesb') || hasWord(o, 'mptet')) return 'Madhya Pradesh';
+    if (hasWord(o, 'uttarakhand') || hasWord(o, 'ukpsc') || hasWord(o, 'uksssc') || hasWord(o, 'utet') || hasWord(o, 'uk') || hasWord(o, 'ubse')) return 'Uttarakhand';
+    if (hasWord(o, 'haryana') || hasWord(o, 'hssc') || hasWord(o, 'hpsc') || hasWord(o, 'htet')) return 'Haryana';
+    if (hasWord(o, 'punjab') || hasWord(o, 'ppsc') || hasWord(o, 'psssb') || hasWord(o, 'pstet')) return 'Punjab';
+    if (hasWord(o, 'himachal') || hasWord(o, 'hppsc') || hasWord(o, 'hptet') || hasWord(o, 'hp')) return 'Himachal Pradesh';
+    if (hasWord(o, 'jharkhand') || hasWord(o, 'jpsc') || hasWord(o, 'jssc') || hasWord(o, 'jtet')) return 'Jharkhand';
+    if (hasWord(o, 'chhattisgarh') || hasWord(o, 'cgpsc') || hasWord(o, 'cgvyapam') || hasWord(o, 'cgtet')) return 'Chhattisgarh';
+    if (hasWord(o, 'gujarat') || hasWord(o, 'gpsc') || hasWord(o, 'gsssb')) return 'Gujarat';
+    if (hasWord(o, 'maharashtra') || hasWord(o, 'mpsc') || hasWord(o, 'maha')) return 'Maharashtra';
+    if (hasWord(o, 'west bengal') || hasWord(o, 'bengal') || hasWord(o, 'wbpsc') || hasWord(o, 'wbssc') || hasWord(o, 'wbtet')) return 'West Bengal';
+    if (hasWord(o, 'odisha') || hasWord(o, 'orissa') || hasWord(o, 'opsc') || hasWord(o, 'ossc') || hasWord(o, 'otet')) return 'Odisha';
+    if (hasWord(o, 'assam') || hasWord(o, 'apsc') || hasWord(o, 'atet')) return 'Assam';
+    if (hasWord(o, 'andhra') || hasWord(o, 'appsc') || hasWord(o, 'aptet')) return 'Andhra Pradesh';
+    if (hasWord(o, 'telangana') || hasWord(o, 'tspsc') || hasWord(o, 'tgtet')) return 'Telangana';
+    if (hasWord(o, 'tamil nadu') || hasWord(o, 'tamil') || hasWord(o, 'tnpsc') || hasWord(o, 'tntet') || hasWord(o, 'trb')) return 'Tamil Nadu';
+    if (hasWord(o, 'karnataka') || hasWord(o, 'kpsc') || hasWord(o, 'kea') || hasWord(o, 'kartet')) return 'Karnataka';
+    if (hasWord(o, 'kerala') || hasWord(o, 'kpsc') || hasWord(o, 'ktet')) return 'Kerala';
+    if (hasWord(o, 'goa') || hasWord(o, 'gpsc')) return 'Goa';
+    if (hasWord(o, 'sikkim') || hasWord(o, 'spsc')) return 'Sikkim';
+    if (hasWord(o, 'tripura') || hasWord(o, 'tpsc')) return 'Tripura';
+    if (hasWord(o, 'meghalaya')) return 'Meghalaya';
+    if (hasWord(o, 'manipur')) return 'Manipur';
+    if (hasWord(o, 'mizoram')) return 'Mizoram';
+    if (hasWord(o, 'nagaland') || hasWord(o, 'npsc')) return 'Nagaland';
+    if (hasWord(o, 'arunachal') || hasWord(o, 'appsc')) return 'Arunachal Pradesh';
+
+    return 'All India';
+  }
+
+  function getCommission(org) {
+    const o = (org || '').toLowerCase();
+
+    // Teaching & Entrance Commissions (Explicit matching)
+    if (hasWord(o, 'nta') || hasWord(o, 'neet') || hasWord(o, 'jee') || hasWord(o, 'cuet') || hasWord(o, 'ugc') || hasWord(o, 'csir')) return 'NTA';
+    if (hasWord(o, 'ctet') || hasWord(o, 'cbse')) return 'CTET / CBSE';
+    if (hasWord(o, 'utet') || hasWord(o, 'ubse') || hasWord(o, 'uk board')) return 'UTET (Uttarakhand)';
+    if (hasWord(o, 'uptet')) return 'UPTET (Uttar Pradesh)';
+    if (hasWord(o, 'reet')) return 'REET (Rajasthan)';
+    if (hasWord(o, 'kvs') || hasWord(o, 'nvs') || hasWord(o, 'emrs') || hasWord(o, 'dsssb')) return 'DSSSB / National Teaching';
+    if (hasWord(o, 'tet') || hasWord(o, 'teacher') || hasWord(o, 'trb')) return 'Teaching Recruitment';
+
+    // Central Recruitment Boards
+    if (hasWord(o, 'upsc')) return 'UPSC';
+    if (hasWord(o, 'ssc') || hasWord(o, 'cgl') || hasWord(o, 'chsl') || hasWord(o, 'mts') || hasWord(o, 'gd')) return 'SSC';
+    if (hasWord(o, 'rrb') || hasWord(o, 'rrc') || hasWord(o, 'railway') || hasWord(o, 'alp')) return 'Railway (RRB)';
+    if (hasWord(o, 'bank') || hasWord(o, 'ibps') || hasWord(o, 'sbi') || hasWord(o, 'rbi') || hasWord(o, 'nabard')) return 'Banking';
+    if (hasWord(o, 'defence') || hasWord(o, 'army') || hasWord(o, 'navy') || hasWord(o, 'air force') || hasWord(o, 'nda') || hasWord(o, 'cds')) return 'Defence';
+    if (hasWord(o, 'police') || hasWord(o, 'crpf') || hasWord(o, 'bsf') || hasWord(o, 'cisf') || hasWord(o, 'itbp') || hasWord(o, 'ssb')) return 'Police & Paramilitary';
+    if (hasWord(o, 'court') || hasWord(o, 'judiciary') || hasWord(o, 'high court')) return 'Judiciary';
+
+    // State Commissions (North, Central, West, East, South)
+    if (hasWord(o, 'uppsc')) return 'UPPSC (Uttar Pradesh)';
+    if (hasWord(o, 'upsssc')) return 'UPSSSC (Uttar Pradesh)';
+    if (hasWord(o, 'bpsc')) return 'BPSC (Bihar)';
+    if (hasWord(o, 'bssc') || hasWord(o, 'btsc')) return 'BSSC (Bihar)';
+    if (hasWord(o, 'ukpsc')) return 'UKPSC (Uttarakhand)';
+    if (hasWord(o, 'uksssc')) return 'UKSSSC (Uttarakhand)';
+    if (hasWord(o, 'rpsc') || hasWord(o, 'rsmssb') || hasWord(o, 'rssb')) return 'RPSC / RSMSSB (Rajasthan)';
+    if (hasWord(o, 'mppsc') || hasWord(o, 'mpesb') || hasWord(o, 'esb')) return 'MPPSC / ESB (Madhya Pradesh)';
+    if (hasWord(o, 'hssc') || hasWord(o, 'hpsc')) return 'HSSC / HPSC (Haryana)';
+    if (hasWord(o, 'jpsc') || hasWord(o, 'jssc')) return 'JPSC / JSSC (Jharkhand)';
+    if (hasWord(o, 'cgpsc') || hasWord(o, 'cgvyapam')) return 'CGPSC (Chhattisgarh)';
+    if (hasWord(o, 'wbpsc') || hasWord(o, 'wbssc')) return 'WBPSC (West Bengal)';
+    if (hasWord(o, 'gpsc') || hasWord(o, 'gsssb')) return 'GPSC (Gujarat)';
+    if (hasWord(o, 'mpsc') || hasWord(o, 'maha')) return 'MPSC (Maharashtra)';
+    if (hasWord(o, 'ppsc') || hasWord(o, 'psssb')) return 'PPSC / PSSSB (Punjab)';
+    if (hasWord(o, 'hppsc') || hasWord(o, 'hpsssb')) return 'HPPSC (Himachal Pradesh)';
+    if (hasWord(o, 'opsc') || hasWord(o, 'ossc')) return 'OPSC / OSSC (Odisha)';
+    if (hasWord(o, 'apsc')) return 'APSC (Assam)';
+    if (hasWord(o, 'appsc')) return 'APPSC (Andhra Pradesh)';
+    if (hasWord(o, 'tspsc')) return 'TSPSC (Telangana)';
+    if (hasWord(o, 'tnpsc')) return 'TNPSC (Tamil Nadu)';
+    if (hasWord(o, 'kpsc') || hasWord(o, 'kea')) return 'KPSC (Karnataka)';
+    if (hasWord(o, 'kerala') || hasWord(o, 'kpsc')) return 'Kerala PSC';
+    if (hasWord(o, 'jkssb') || hasWord(o, 'jkpsc')) return 'JKSSB / JKPSC (J&K)';
+
+    return 'Other Board / Commission';
+  }
+
+  
+  const officialStatesAndUTs = [
+    // 28 States
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+    'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+    'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+    'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+    // 8 Union Territories
+    'Andaman & Nicobar', 'Chandigarh', 'Dadra & Daman', 'Delhi',
+    'Jammu & Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+  ];
+
+  const allPostsList = (typeof posts !== 'undefined' && Array.isArray(posts)) ? posts : [];
+
+  const dynamicStates = Array.from(new Set(
+    allPostsList.map(p => (typeof getState === 'function') ? getState(p.organization) : 'All India').filter(Boolean)
+  )).sort();
+
+  
+  const officialCommissionsList = [
+    // Teaching & Entrance
+    'NTA', 'CTET / CBSE', 'UTET (Uttarakhand)', 'UPTET (Uttar Pradesh)', 'REET (Rajasthan)', 'DSSSB / National Teaching', 'Teaching Recruitment',
+    // Central Recruitment
+    'UPSC', 'SSC', 'Railway (RRB)', 'Banking', 'Defence', 'Police & Paramilitary', 'Judiciary',
+    // State Commissions
+    'UPPSC (Uttar Pradesh)', 'UPSSSC (Uttar Pradesh)', 'BPSC (Bihar)', 'BSSC (Bihar)',
+    'UKPSC (Uttarakhand)', 'UKSSSC (Uttarakhand)', 'RPSC / RSMSSB (Rajasthan)',
+    'MPPSC / ESB (Madhya Pradesh)', 'HSSC / HPSC (Haryana)', 'JPSC / JSSC (Jharkhand)',
+    'CGPSC (Chhattisgarh)', 'WBPSC (West Bengal)', 'GPSC (Gujarat)', 'MPSC (Maharashtra)',
+    'PPSC / PSSSB (Punjab)', 'HPPSC (Himachal Pradesh)', 'OPSC / OSSC (Odisha)',
+    'APSC (Assam)', 'APPSC (Andhra Pradesh)', 'TSPSC (Telangana)', 'TNPSC (Tamil Nadu)',
+    'KPSC (Karnataka)', 'Kerala PSC', 'JKSSB / JKPSC (J&K)'
+  ];
+
+  const dynamicComms = Array.from(new Set(
+    allPostsList.map(p => (typeof getCommission === 'function') ? getCommission(p.organization) : 'Other').filter(Boolean)
+  )).sort();
+
+  const dynamicCounts = {
+    all: allPostsList.length,
+    jobs: allPostsList.filter(p => p.category === 'latest-jobs').length,
+    admits: allPostsList.filter(p => p.category === 'admit-card').length,
+    results: allPostsList.filter(p => p.category === 'results').length,
+    ak: allPostsList.filter(p => p.category === 'answer-key').length,
+    syl: allPostsList.filter(p => p.category === 'syllabus').length
+  };
+%>
+
+
+<style>
+  html, body {
+    max-width: 100% !important;
+    overflow-x: clip !important;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  /* Desktop Card Hover Elevation */
+  @media (min-width: 768px) {
+    .master-card {
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .master-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.6), 0 0 15px 1px rgba(99, 102, 241, 0.15);
+    }
+  }
+</style>
+
+<main class="max-w-6xl mx-auto px-4 py-6 flex-1 w-full pb-20">
+
+  <!-- Hero Section -->
+  <div class="text-center pt-8 pb-4 md:pt-14 md:pb-6 max-w-4xl mx-auto relative px-2">
+
+    <!-- Top Verified Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full figma-pill text-xs font-semibold text-slate-300 mb-5 shadow-sm">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="tracking-wide text-emerald-300 font-medium">100% Verified Sarkari Feeds</span>
+      <span class="text-slate-600">•</span>
+      <span class="text-indigo-400 font-medium">रोज़ाना नया अपडेट</span>
+    </div>
+
+    <!-- Power Headline -->
+    <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.14]">
+      Sarkari Career Discovery &amp;<br class="hidden sm:inline" />
+      <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-sky-300 to-emerald-400">Recruitment Intelligence Hub</span>
+    </h1>
+
+    <p class="text-slate-300 text-xs sm:text-sm md:text-base mt-3.5 max-w-2xl mx-auto leading-relaxed">
+      Sabhi Central &amp; State recruitment commissions ke direct official portal links, syllabus PDFs aur dates — ek hi click me verified.
+    </p>
+
+    <!-- High-Trust Discovery Pillars -->
+    <div class="grid grid-cols-3 gap-2 sm:gap-4 max-w-3xl mx-auto mt-6 text-left">
+      <div class="figma-glass p-3.5 rounded-2xl relative overflow-hidden block">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl font-black text-indigo-400 font-mono"><%= dynamicCounts.jobs %>+</span>
+          <span class="text-[10px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20 font-semibold uppercase">Active</span>
+        </div>
+        <div class="text-[12px] font-bold text-white mt-1.5">Live Openings</div>
+        <div class="text-[10px] text-slate-400">Apply link enabled</div>
+      </div>
+
+      <div class="figma-glass p-3.5 rounded-2xl relative overflow-hidden block">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl font-black text-emerald-400 font-mono">100%</span>
+          <span class="text-[10px] bg-emerald-500/10 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/20 font-semibold uppercase">Direct</span>
+        </div>
+        <div class="text-[12px] font-bold text-white mt-1.5">Official Links</div>
+        <div class="text-[10px] text-slate-400">Zero fake redirects</div>
+      </div>
+
+      <div class="figma-glass p-3.5 rounded-2xl relative overflow-hidden block">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl font-black text-cyan-400 font-mono">36</span>
+          <span class="text-[10px] bg-cyan-500/10 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-500/20 font-semibold uppercase">Coverage</span>
+        </div>
+        <div class="text-[12px] font-bold text-white mt-1.5">States &amp; UTs</div>
+        <div class="text-[10px] text-slate-400">All India + State Boards</div>
+      </div>
+    </div>
+
+    <!-- FIGMA FROSTED GLASS UNIVERSAL DISCOVERY HUB (ALL SCREENS OPTIMIZED) -->
+    <div id="discovery-hub" class="mt-8 mb-6 mx-auto w-full max-w-5xl text-left overflow-hidden">
+      <div class="p-4 sm:p-6 lg:p-7 rounded-3xl bg-[#0b132b]/85 border border-white/10 backdrop-blur-2xl shadow-[0_12px_45px_rgba(0,0,0,0.55)] relative overflow-hidden transition-all duration-300">
+        
+        <!-- Ambient Indigo Backlight Glow (Expands smoothly on desktop) -->
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-80 md:w-[600px] h-28 bg-indigo-500/15 blur-3xl pointer-events-none rounded-full"></div>
+
+        <!-- Row 1: Search Bar with Active Clear Button -->
+        <div class="relative w-full mb-3.5 group">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-indigo-400 group-focus-within:text-indigo-300 transition-colors">
+            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <input type="text" 
+                 id="hubSearchInput" 
+                 oninput="handleSearchInput(this)"
+                 placeholder="Search e.g. SSC CGL, BPSC, Police, 10th Pass, UTET..." 
+                 class="w-full pl-10 pr-10 py-2.5 sm:py-3 rounded-2xl bg-white/[0.03] border border-white/10 text-white placeholder-slate-400/80 text-xs sm:text-sm focus:outline-none focus:border-indigo-500/70 focus:bg-white/[0.06] focus:ring-4 focus:ring-indigo-500/15 transition-all shadow-inner">
+          <button type="button" 
+                  id="hubClearSearchBtn" 
+                  onclick="clearHubSearch()" 
+                  class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Row 3: Dropdowns (Tablet & Desktop: Perfectly balanced 2-column grid with custom styling) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-4 pt-4 border-t border-white/[0.08]">
+          <div>
+            <label class="block text-[11px] sm:text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <span>📍 State / Region</span>
+              <span class="text-[10px] text-indigo-400/80">(Pan-India)</span>
+            </label>
+            <div class="relative">
+              <select id="hubStateDropdown" onchange="applyUnifiedDiscoveryFilter()"
+                      class="w-full bg-[#080d1a] border border-white/10 rounded-xl px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-slate-200 focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 appearance-none pr-9 transition-colors cursor-pointer">
+                <option value="">All States & UTs (Pan-India)</option>
+                <% officialStatesAndUTs.forEach(function(st) { %>
+                  <option value="<%= st %>"><%= st %></option>
+                <% }); %>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] sm:text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+              <span>🏛️ Board / Commission</span>
+              <span class="text-[10px] text-cyan-400/80">(National & State)</span>
+            </label>
+            <div class="relative">
+              <select id="hubCommDropdown" onchange="applyUnifiedDiscoveryFilter()"
+                      class="w-full bg-[#080d1a] border border-white/10 rounded-xl px-3.5 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-slate-200 focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 appearance-none pr-9 transition-colors cursor-pointer">
+                <option value="">All Boards & Commissions (NTA, CTET, UTET, State)</option>
+                <% officialCommissionsList.forEach(function(cm) { %>
+                  <option value="<%= cm %>"><%= cm %></option>
+                <% }); %>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- Close Hero Section -->
+
+  <!-- Top Sponsored Billboard Ad Slot -->
+  <%- include('partials/ad-slot', { slotType: 'top' }) %>
+
+
+  <% if (typeof trending !== 'undefined' && trending && trending.length > 0) { %>
+  <section id="trending-section" class="mb-5">
+    <div class="flex items-center gap-3.5 mb-2 border-b border-white/10 pb-1.5">
+      <span class="text-xs">🔥</span>
+      <h2 class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider">Trending Now</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+      <% trending.forEach(item => { %>
+        <a href="/<%= item.category %>/<%= item.slug %>"
+           class="group flex flex-col justify-center px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/[0.07] to-[#0F172A] hover:bg-[#181424] border border-amber-500/30 hover:border-amber-400/60 transition-all duration-100 shadow-sm">
+          
+          <div class="flex items-center justify-between gap-3.5 leading-tight">
+            <h3 class="text-xs font-bold text-slate-100 group-hover:text-amber-300 transition-colors truncate flex items-center gap-1">
+              <span class="text-amber-400 text-[10px]">🔥</span>
+              <span><%= item.title %></span>
+            </h3>
+            <span class="inline-flex items-center font-mono text-[9px] font-bold text-rose-400 bg-rose-500/10 px-1 py-0.5 rounded shrink-0">
+              <%= item.applicationEnd || 'Active' %>
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between gap-1 mt-1 text-[9.5px] leading-none">
+            <span class="text-slate-400 truncate opacity-85">
+              <%= item.organization %>
+            </span>
+            <span class="text-amber-400 font-semibold uppercase text-[9px] bg-amber-500/10 px-1 py-0.5 rounded shrink-0">
+              <%= item.category %>
+            </span>
+          </div>
+
+        </a>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- ======================================================= -->
+  <!-- SECTION 1: LATEST JOBS -->
+  <!-- ======================================================= -->
+  
+  <!-- ======================================================= -->
+  <!-- FIGMA MULTI-COLUMN COMMAND CENTER (ZERO LONG SCROLL) -->
+  <!-- ======================================================= -->
+  <section class="mt-4 mb-12">
+    
+    <!-- Board Section Title -->
+    <div class="flex items-center justify-between mb-4 px-1">
+      <div class="flex items-center gap-2">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        <h2 class="text-sm sm:text-base font-extrabold text-white uppercase tracking-wider">Live Recruitment Boards / सभी अपडेट</h2>
+      </div>
+      <div class="text-[11px] text-slate-400 hidden sm:block">
+        Independent scroll per column • Zero page lag
+      </div>
+    </div>
+
+    <!-- 4-Column Responsive Figma Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+
+      <!-- Column 1: Latest Jobs -->
+      <div id="board-jobs" class="figma-glass rounded-2xl border border-indigo-500/20 overflow-hidden flex flex-col shadow-xl">
+        <div class="p-3.5 bg-indigo-950/40 border-b border-white/[0.08] flex items-center justify-between sticky top-0 backdrop-blur-md z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-base">💼</span>
+            <span class="text-xs font-bold text-white">Latest Jobs</span>
+          </div>
+          <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            <%= posts.filter(p => p.category === "latest-jobs").length %>
+          </span>
+        </div>
+        <div class="p-2 pb-4 flex flex-col gap-1.5 max-h-[480px] min-h-[90px] overflow-y-auto overscroll-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pr-1">
+          <% const jobs = posts.filter(p => p.category === "latest-jobs"); %>
+          <% if (jobs.length === 0) { %>
+            <div class="p-6 text-center text-xs text-slate-500">No active jobs found</div>
+          <% } else { %>
+            <% jobs.forEach(item => { %>
+              <%- include("partials/card-template", { item: item, getState: getState, getCommission: getCommission }) %>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Column 2: Admit Cards -->
+      <div id="board-admit" class="figma-glass rounded-2xl border border-amber-500/20 overflow-hidden flex flex-col shadow-xl">
+        <div class="p-3.5 bg-amber-950/40 border-b border-white/[0.08] flex items-center justify-between sticky top-0 backdrop-blur-md z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🎟️</span>
+            <span class="text-xs font-bold text-white">Admit Cards</span>
+          </div>
+          <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <%= posts.filter(p => p.category === "admit-card").length %>
+          </span>
+        </div>
+        <div class="p-2 pb-4 flex flex-col gap-1.5 max-h-[480px] min-h-[90px] overflow-y-auto overscroll-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pr-1">
+          <% const admits = posts.filter(p => p.category === "admit-card"); %>
+          <% if (admits.length === 0) { %>
+            <div class="p-6 text-center text-xs text-slate-500">No admit cards released</div>
+          <% } else { %>
+            <% admits.forEach(item => { %>
+              <%- include("partials/card-template", { item: item, getState: getState, getCommission: getCommission }) %>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Column 3: Results -->
+      <div id="board-results" class="figma-glass rounded-2xl border border-emerald-500/20 overflow-hidden flex flex-col shadow-xl">
+        <div class="p-3.5 bg-emerald-950/40 border-b border-white/[0.08] flex items-center justify-between sticky top-0 backdrop-blur-md z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🏆</span>
+            <span class="text-xs font-bold text-white">Results</span>
+          </div>
+          <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+            <%= posts.filter(p => p.category === "results").length %>
+          </span>
+        </div>
+        <div class="p-2 pb-4 flex flex-col gap-1.5 max-h-[480px] min-h-[90px] overflow-y-auto overscroll-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pr-1">
+          <% const resPosts = posts.filter(p => p.category === "results"); %>
+          <% if (resPosts.length === 0) { %>
+            <div class="p-6 text-center text-xs text-slate-500">No results declared yet</div>
+          <% } else { %>
+            <% resPosts.forEach(item => { %>
+              <%- include("partials/card-template", { item: item, getState: getState, getCommission: getCommission }) %>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Column 4: Answer Keys -->
+      <div id="board-answerkey" class="figma-glass rounded-2xl border border-rose-500/20 overflow-hidden flex flex-col shadow-xl">
+        <div class="p-3.5 bg-rose-950/40 border-b border-white/[0.08] flex items-center justify-between sticky top-0 backdrop-blur-md z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🔑</span>
+            <span class="text-xs font-bold text-white">Answer Keys</span>
+          </div>
+          <span class="text-[11px] font-mono font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full">
+            <%= posts.filter(p => p.category === "answer-key").length %>
+          </span>
+        </div>
+        <div class="p-2 pb-4 flex flex-col gap-1.5 max-h-[500px] overflow-y-auto overscroll-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pr-1">
+          <% const akPosts = posts.filter(p => p.category === "answer-key"); %>
+          <% if (akPosts.length === 0) { %>
+            <div class="text-center py-8 text-slate-500 text-xs">No updates currently</div>
+          <% } else { %>
+            <% akPosts.forEach(item => { %>
+              <%- include("partials/card-template", { item: item, getState: getState, getCommission: getCommission }) %>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Column 5: Syllabus -->
+      <div id="board-syllabus" class="figma-glass rounded-2xl border border-cyan-500/20 overflow-hidden flex flex-col shadow-xl">
+        <div class="p-3.5 bg-cyan-950/40 border-b border-white/[0.08] flex items-center justify-between sticky top-0 backdrop-blur-md z-10">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📚</span>
+            <span class="text-xs font-bold text-white">Syllabus</span>
+          </div>
+          <span class="text-[11px] font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
+            <%= posts.filter(p => p.category === "syllabus").length %>
+          </span>
+        </div>
+        <div class="p-2 pb-4 flex flex-col gap-1.5 max-h-[500px] overflow-y-auto overscroll-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pr-1">
+          <% const sylPosts = posts.filter(p => p.category === "syllabus"); %>
+          <% if (sylPosts.length === 0) { %>
+            <div class="text-center py-8 text-slate-500 text-xs">No updates currently</div>
+          <% } else { %>
+            <% sylPosts.forEach(item => { %>
+              <%- include("partials/card-template", { item: item, getState: getState, getCommission: getCommission }) %>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  
+  
+  <!-- Bottom High-Visibility Sponsored Ad Slot -->
+  <div class="my-8 max-w-5xl mx-auto px-4">
+    <%- include("partials/ad-slot", { slotType: "bottom" }) %>
+  </div>
+
+  <!-- Mobile Floating Quick-Dock Navigation -->
+  <div class="sm:hidden fixed bottom-3 inset-x-0 z-50 flex justify-center pointer-events-none">
+    <nav aria-label="Mobile Board Navigation" class="pointer-events-auto inline-flex items-center gap-1 p-1 rounded-full bg-[#070c18]/95 backdrop-blur-2xl border border-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.85)]" style="width: fit-content; max-width: fit-content;">
+      <button id="dock-board-jobs" type="button" onclick="jumpToBoard('board-jobs')" class="dock-btn flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold text-slate-200 hover:text-white transition-all">
+        <span>💼</span> Jobs
+      </button>
+      <div class="h-3 w-[1px] bg-white/20"></div>
+      <button id="dock-board-admit" type="button" onclick="jumpToBoard('board-admit')" class="dock-btn flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold text-slate-200 hover:text-white transition-all">
+        <span>🎟️</span> Admit
+      </button>
+      <div class="h-3 w-[1px] bg-white/20"></div>
+      <button id="dock-board-results" type="button" onclick="jumpToBoard('board-results')" class="dock-btn flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold text-slate-200 hover:text-white transition-all">
+        <span>🏆</span> Result
+      </button>
+      <div class="h-3 w-[1px] bg-white/20"></div>
+      <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="p-1 rounded-full text-slate-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all" title="Back to top">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+      </button>
+    </nav>
+  </div>
+
+  
+
+  
+  
+  
+
+
+
+
+  
+
+
+  
+
+
+  
+
+
+  <style>
+    /* 1. Global Touch & Tap Optimization */
+    *, *::before, *::after {
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    button, a, .dock-btn, select, input {
+      touch-action: manipulation;
+    }
+
+    /* 2. Kinetic 60fps Smooth Momentum Scroll */
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      touch-action: pan-y;
+      -webkit-font-smoothing: antialiased;
+    }
+    .overflow-y-auto {
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior-y: auto !important;
+      scroll-behavior: smooth !important;
+      touch-action: pan-y !important;
+      transform: translateZ(0);
+      will-change: scroll-position;
+    }
+    .scrollbar-thin {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    /* 3. Tactile Physical Press States */
+    .dock-btn, .master-card, .figma-glass, button, a {
+      transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1), filter 0.08s ease, box-shadow 0.08s ease !important;
+      will-change: transform;
+    }
+    .touch-pressed {
+      transform: scale(0.99) !important;
+      filter: brightness(1.04) !important;
+    }
+    .dock-btn.touch-pressed {
+      transform: scale(0.97) !important;
+      background: rgba(99, 102, 241, 0.25) !important;
+    }
+    .dock-btn.active-dock {
+      background: rgba(99, 102, 241, 0.25);
+      border: 1px solid rgba(129, 140, 248, 0.45);
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+    }
+
+    /* 4. Unified Dark Ad Theme Override */
+    div[style*="background: white"], div[style*="background:#fff"], div[class*="bg-white"] {
+      background: #0b1329 !important;
+      color: #e2e8f0 !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+  </style>
+
+
+  <script>
+    // Micro Haptic Feedback
+    
+  
+  let selectedCategoryFilter = 'all';
+
+  
+  function handleSearchInput(input) {
+    const clearBtn = document.getElementById("hubClearSearchBtn");
+    if (clearBtn) clearBtn.classList.toggle("hidden", !input.value.trim());
+    applyUnifiedDiscoveryFilter();
+  }
+
+  function clearHubSearch() {
+    if (typeof triggerHaptic === 'function') triggerHaptic('light');
+    const input = document.getElementById("hubSearchInput");
+    if (input) {
+      input.value = "";
+      document.getElementById("hubClearSearchBtn").classList.add("hidden");
+      applyUnifiedDiscoveryFilter();
+    }
+  }
+
+  function resetAllHubFilters() {
+    if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+    const input = document.getElementById("hubSearchInput");
+    if (input) input.value = "";
+    
+    const clearBtn = document.getElementById("hubClearSearchBtn");
+    if (clearBtn) clearBtn.classList.add("hidden");
+
+    const stDropdown = document.getElementById("hubStateDropdown");
+    if (stDropdown) stDropdown.value = "";
+
+    const cmDropdown = document.getElementById("hubCommDropdown");
+    if (cmDropdown) cmDropdown.value = "";
+
+    const allBtn = document.querySelector(".univ-category-pill");
+    if (allBtn) setUnifiedCategory('all', allBtn);
+  }
+
+  function setUnifiedCategory(cat, btn) {
+    if (typeof triggerHaptic === 'function') triggerHaptic('light');
+    selectedCategoryFilter = cat;
+    
+    document.querySelectorAll('.univ-category-pill').forEach(b => {
+      b.className = 'univ-category-pill shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-2 bg-white/[0.04] text-slate-300 border border-white/10 hover:bg-white/[0.08] hover:text-white';
+    });
+    btn.className = 'univ-category-pill active-pill shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white border border-indigo-400/40 shadow-[0_0_15px_rgba(99,102,241,0.35)]';
+    
+    applyUnifiedDiscoveryFilter();
+  }
+
+  function applyUnifiedDiscoveryFilter() {
+    const sInput = document.getElementById('hubSearchInput');
+    const searchVal = (sInput ? sInput.value : '').toLowerCase().trim();
+
+    const stSelect = document.getElementById('hubStateDropdown');
+    const selectedState = (stSelect ? stSelect.value : '').toLowerCase().trim();
+
+    const cmSelect = document.getElementById('hubCommDropdown');
+    const selectedComm = (cmSelect ? cmSelect.value : '').toLowerCase().trim();
+
+    const cards = document.querySelectorAll('.master-card');
+
+    cards.forEach(card => {
+      const cardCat = (card.getAttribute('data-cat') || '').toLowerCase();
+      const cardState = (card.getAttribute('data-state') || '').toLowerCase();
+      const cardComm = (card.getAttribute('data-comm') || '').toLowerCase();
+      const cardText = (card.innerText || '').toLowerCase();
+
+      // Category check
+      const matchCat = (selectedCategoryFilter === 'all') || (cardCat === selectedCategoryFilter);
+
+      // State check
+      let matchState = true;
+      if (selectedState && selectedState !== 'all india') {
+        matchState = cardState.includes(selectedState) || cardText.includes(selectedState);
+      }
+
+      // Commission check
+      let matchComm = true;
+      if (selectedComm) {
+        matchComm = cardComm.includes(selectedComm) || cardText.includes(selectedComm);
+      }
+
+      // Search bar check
+      let matchSearch = true;
+      if (searchVal) {
+        matchSearch = cardText.includes(searchVal) || cardComm.includes(searchVal) || cardState.includes(searchVal);
+      }
+
+      const isMatch = matchCat && matchState && matchComm && matchSearch;
+      card.style.display = isMatch ? '' : 'none';
+    });
+
+    // Auto toggle empty recruitment boards
+    const boards = ['board-jobs', 'board-results', 'board-admits', 'board-ak', 'board-syl'];
+    boards.forEach(bId => {
+      const bEl = document.getElementById(bId);
+      if (bEl) {
+        const bCards = bEl.querySelectorAll('.master-card');
+        if (bCards.length > 0) {
+          const hasVisible = Array.from(bCards).some(c => c.style.display !== 'none');
+          bEl.style.display = hasVisible ? '' : 'none';
+        }
+      }
+    });
+  }
+
+  function triggerHapticFeedback(type = "light") {
+    try {
+      if ("vibrate" in navigator) {
+        navigator.vibrate(type === "light" ? 12 : 20);
+      }
+    } catch(e) {}
+  }
+
+  function selectCategoryFilter(cat, btn) {
+    triggerHapticFeedback("light");
+    currentActiveCategory = cat;
+    
+    document.querySelectorAll(".univ-cat-tab").forEach(tab => {
+      tab.className = "univ-cat-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-2 bg-white/[0.04] text-slate-300 border border-white/10 hover:bg-white/[0.08] hover:text-white";
+    });
+
+    btn.className = "univ-cat-tab active-cat-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white border border-indigo-400/40 shadow-[0_0_15px_rgba(99,102,241,0.35)]";
+    
+    executeUniversalFilter();
+  }
+
+  function clearUniversalSearch() {
+    triggerHapticFeedback("light");
+    const input = document.getElementById("universalSearchInput");
+    if (input) {
+      input.value = "";
+      document.getElementById("searchClearBtn").classList.add("hidden");
+      executeUniversalFilter();
+    }
+  }
+
+  function resetUniversalFilter() {
+    triggerHapticFeedback("medium");
+    const searchInput = document.getElementById("universalSearchInput");
+    if (searchInput) searchInput.value = "";
+    
+    const stateSelect = document.getElementById("univStateSelect");
+    if (stateSelect) stateSelect.value = "";
+    
+    const commSelect = document.getElementById("univCommSelect");
+    if (commSelect) commSelect.value = "";
+    
+    const allBtn = document.querySelector(".univ-cat-tab");
+    if (allBtn) selectCategoryFilter('all', allBtn);
+  }
+
+  function executeUniversalFilter() {
+    const searchInput = document.getElementById("universalSearchInput");
+    const searchVal = (searchInput ? searchInput.value : "").trim().toLowerCase();
+    
+    const clearBtn = document.getElementById("searchClearBtn");
+    if (clearBtn) clearBtn.classList.toggle("hidden", searchVal.length === 0);
+
+    const stateSelect = document.getElementById("univStateSelect");
+    const selectedState = stateSelect ? stateSelect.value.trim().toLowerCase() : "";
+
+    const commSelect = document.getElementById("univCommSelect");
+    const selectedComm = commSelect ? commSelect.value.trim().toLowerCase() : "";
+
+    const cards = document.querySelectorAll(".master-card, [data-cat]");
+    let visibleCount = 0;
+    const isFiltered = searchVal.length > 0 || selectedState.length > 0 || selectedComm.length > 0 || currentActiveCategory !== 'all';
+
+    cards.forEach(card => {
+      const cardCat = (card.getAttribute("data-cat") || "").toLowerCase();
+      const cardState = (card.getAttribute("data-state") || "").toLowerCase();
+      const cardComm = (card.getAttribute("data-comm") || "").toLowerCase();
+      const text = (card.innerText || "").toLowerCase();
+
+      // Category match
+      const matchCat = (currentActiveCategory === 'all') || (cardCat === currentActiveCategory);
+
+      // State match
+      const matchState = !selectedState || cardState.includes(selectedState) || (selectedState === 'all india');
+
+      // Commission match
+      const matchComm = !selectedComm || cardComm.includes(selectedComm);
+
+      // Search text match
+      const matchSearch = !searchVal || text.includes(searchVal) || cardComm.includes(searchVal) || cardState.includes(searchVal);
+
+      const isMatch = matchCat && matchState && matchComm && matchSearch;
+      card.style.display = isMatch ? "" : "none";
+      if (isMatch) visibleCount++;
+    });
+
+    // Update feedback bar
+    const feedbackBar = document.getElementById("univFeedbackBar");
+    const matchCountEl = document.getElementById("univMatchCount");
+    if (feedbackBar && matchCountEl) {
+      feedbackBar.classList.toggle("hidden", !isFiltered);
+      matchCountEl.textContent = visibleCount;
+    }
+
+    // Check board visibility (hide board if empty during filter)
+    const boards = ["board-jobs", "board-results", "board-admits", "board-ak", "board-syl"];
+    boards.forEach(boardId => {
+      const boardEl = document.getElementById(boardId);
+      if (boardEl) {
+        const boardCards = boardEl.querySelectorAll(".master-card, [data-cat]");
+        if (boardCards.length > 0) {
+          const hasVisible = Array.from(boardCards).some(c => c.style.display !== "none");
+          boardEl.style.display = hasVisible ? "" : "none";
+        }
+      }
+    });
+  }
+
+  function triggerHaptic(type = "light") {
+      try {
+        if ("vibrate" in navigator) {
+          navigator.vibrate(type === "light" ? 12 : [16, 25, 16]);
+        }
+      } catch (e) {}
+    }
+
+    // Hardware-Accelerated Smooth Jump
+    function jumpToBoard(id) {
+      triggerHaptic("medium");
+      const el = document.getElementById(id);
+      if (el) {
+        const header = document.querySelector("header");
+        const headerH = header ? header.offsetHeight : 64;
+        const targetY = el.getBoundingClientRect().top + window.pageYOffset - headerH - 14;
+        window.scrollTo({
+          top: targetY,
+          behavior: "smooth"
+        });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Instant Physical Tap Listeners
+      const interactiveSelector = ".dock-btn, .figma-glass, button, .rounded-2xl";
+      document.body.addEventListener("touchstart", (e) => {
+        const target = e.target.closest(interactiveSelector);
+        if (target) {
+          target.classList.add("touch-pressed");
+          triggerHaptic("light");
+        }
+      }, { passive: true });
+
+      const removePress = (e) => {
+        const target = e.target.closest(interactiveSelector);
+        if (target) {
+          setTimeout(() => target.classList.remove("touch-pressed"), 100);
+        } else {
+          document.querySelectorAll(".touch-pressed").forEach(el => el.classList.remove("touch-pressed"));
+        }
+      };
+      document.body.addEventListener("touchend", removePress, { passive: true });
+      document.body.addEventListener("touchcancel", removePress, { passive: true });
+
+      // 2. Active Dock Indicator (Intersection Observer)
+      const boardIds = ["board-jobs", "board-admit", "board-results"];
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll(".dock-btn").forEach(b => b.classList.remove("active-dock"));
+            const activeBtn = document.getElementById("dock-" + entry.target.id);
+            if (activeBtn) activeBtn.classList.add("active-dock");
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px", threshold: 0.1 });
+
+      boardIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      });
+    });
+  </script>
+
+</main>
+
+
+
+<%- include('partials/footer') %>

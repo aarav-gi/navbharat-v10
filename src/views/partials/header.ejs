@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="hi-en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : settings.siteName %></title>
+  <% if (typeof description !== 'undefined' && description) { %><meta name="description" content="<%= description %>"><% } %>
+  <% if (typeof keywords !== 'undefined' && keywords && keywords.length) { %><meta name="keywords" content="<%= keywords.join(', ') %>"><% } %>
+
+  <% if (typeof noindex !== 'undefined' && noindex) { %>
+    <meta name="robots" content="noindex,follow">
+  <% } else { %>
+    <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+  <% } %>
+
+  <% if (typeof canonicalUrl !== 'undefined' && canonicalUrl) { %><link rel="canonical" href="<%= canonicalUrl %>"><% } %>
+
+  <!-- Open Graph -->
+  <% if (typeof description !== 'undefined' && description) { %>
+    <meta property="og:site_name" content="<%= settings.siteName %>">
+    <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : settings.siteName %>">
+    <meta property="og:description" content="<%= description %>">
+    <meta property="og:type" content="<%= typeof post !== 'undefined' && post ? 'article' : 'website' %>">
+    <meta property="og:locale" content="en_IN">
+    <meta property="og:image" content="<%= (typeof siteUrl !== 'undefined' ? siteUrl : '') %>/favicon.svg">
+    <% if (typeof canonicalUrl !== 'undefined' && canonicalUrl) { %><meta property="og:url" content="<%= canonicalUrl %>"><% } %>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : settings.siteName %>">
+    <meta name="twitter:description" content="<%= description %>">
+    <meta name="twitter:image" content="<%= (typeof siteUrl !== 'undefined' ? siteUrl : '') %>/favicon.svg">
+  <% } %>
+
+    <meta name="geo.region" content="IN">
+  <meta name="geo.placename" content="India">
+  <meta name="rating" content="general">
+  <meta name="revisit-after" content="1 days">
+  <meta name="theme-color" content="#060913">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" type="application/rss+xml" title="<%= settings.siteName %> — Latest Updates" href="/feed.xml">
+
+  <!-- Sitewide structured data (Organization + WebSite w/ sitelinks search box) -->
+  <%- include('site-jsonld') %>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#060913', card: '#0E172A', cardHover: '#131F38',
+              border: '#1E293B', borderBright: '#334155',
+              accent: '#6366F1', cyan: '#06B6D4', emerald: '#10B981',
+              amber: '#F59E0B', rose: '#F43F5E'
+            }
+          },
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] }
+        }
+      }
+    }
+  </script>
+  
+  
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap");
+
+    body {
+      background-color: #050811 !important;
+      background-image: 
+        radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 40%),
+        radial-gradient(at 0% 25%, rgba(139, 92, 246, 0.06) 0px, transparent 40%) !important;
+      background-attachment: fixed !important;
+      color: #E2E8F0;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    /* Figma Surface Glass */
+    .figma-glass {
+      background: rgba(13, 20, 36, 0.7) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    .figma-glass:hover {
+      border-color: rgba(99, 102, 241, 0.35) !important;
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px -2px rgba(99, 102, 241, 0.15) !important;
+    }
+
+    /* Glow Pill */
+    .figma-pill {
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1);
+    }
+  </style>
+
+
+
+<style>
+  /* Advanced Figma UI Token Styles */
+  .figma-surface {
+    background: rgba(11, 19, 43, 0.78) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  }
+  .figma-glass-pill {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+  .figma-glass-pill:hover, .figma-glass-pill:active {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+    transform: translateY(-1px);
+  }
+  .figma-gradient-text {
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .figma-table-cell {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+  }
+</style>
+
+
+<script>
+  // Unified Figma tactile haptic engine
+  window.triggerHaptic = function(pattern) {
+    if (!('vibrate' in navigator)) return;
+    try {
+      if (pattern === 'light' || pattern === 'selection') {
+        navigator.vibrate(10);
+      } else if (pattern === 'medium') {
+        navigator.vibrate(22);
+      } else if (pattern === 'action' || pattern === 'heavy') {
+        navigator.vibrate([18, 35, 25]);
+      } else if (pattern === 'success') {
+        navigator.vibrate([12, 28, 16]);
+      } else if (typeof pattern === 'number' || Array.isArray(pattern)) {
+        navigator.vibrate(pattern);
+      } else {
+        navigator.vibrate(10);
+      }
+    } catch(e) {}
+  };
+
+  // Global Event Delegation for touch devices sitewide
+  (function initGlobalHaptics() {
+    function handleTouch(e) {
+      const target = e.target.closest('button, a, select, input, .master-card, .univ-category-pill, [onclick]');
+      if (!target) return;
+
+      // Class-based intensity selection
+      if (target.classList.contains('active-pill') || target.hasAttribute('data-haptic-action') || 
+          target.innerText.includes('Apply Online') || target.innerText.includes('PDF') ||
+          target.innerText.includes('WhatsApp') || target.innerText.includes('Telegram')) {
+        window.triggerHaptic('action');
+      } else if (target.tagName === 'SELECT' || target.getAttribute('role') === 'button') {
+        window.triggerHaptic('medium');
+      } else {
+        window.triggerHaptic('light');
+      }
+    }
+
+    document.addEventListener('touchstart', handleTouch, { passive: true, capture: true });
+  })();
+</script>
+
+
+
+
+
+<style id="figma-micro-interactions">
+  /* Force touch event processing on mobile */
+  html, body {
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  /* Interactive Elements Target */
+  a, button, select, 
+  .interactive-tap,
+  .master-card,
+  .univ-category-pill,
+  [role="button"] {
+    transition: transform 0.14s cubic-bezier(0.2, 0.9, 0.3, 1.2) !important;
+    will-change: transform;
+    display: inline-block;
+  }
+
+  /* Applied dynamically on touch */
+  .figma-touch-active {
+    transform: scale(0.96) !important;
+    opacity: 0.92 !important;
+  }
+</style>
+
+<script>
+  // Mobile Touch Zoom Engine (Bypasses Chrome :active freeze)
+  (function() {
+    let activeEl = null;
+
+    document.addEventListener("touchstart", function(e) {
+      const el = e.target.closest("a, button, select, .master-card, .univ-category-pill, [role="button"], [onclick]");
+      if (!el) return;
+      activeEl = el;
+      el.classList.add("figma-touch-active");
+    }, { passive: true, capture: true });
+
+    function removeTouch() {
+      if (activeEl) {
+        activeEl.classList.remove("figma-touch-active");
+        activeEl = null;
+      }
+    }
+
+    document.addEventListener("touchend", removeTouch, { passive: true });
+    document.addEventListener("touchcancel", removeTouch, { passive: true });
+  })();
+</script>
+
+</head>
+<body class="bg-brand-bg text-slate-200 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-accent selection:text-white">
+
+  <!-- Primary Navbar (Sticky) -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[#050811]/80 border-b border-white/[0.07]">
+    <div class="max-w-6xl mx-auto px-4 h-13 sm:h-14 py-2 flex items-center justify-between gap-2">
+
+      <!-- Left Side: Brand Logo & Portal Name -->
+      <a href="/" aria-label="RozgarHub Homepage" class="flex items-center gap-2.5 group shrink-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-[1px] bg-gradient-to-tr from-indigo-500 via-indigo-600 to-cyan-400 shadow-lg shadow-indigo-500/25 flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+          <img src="/images/logo.png" alt="RozgarHub Logo" class="w-full h-full object-contain rounded-[10px] bg-white p-0.5" />
+        </div>
+        <div class="flex flex-col">
+          <div class="font-extrabold text-base sm:text-lg tracking-tight text-white leading-tight flex items-center gap-1">
+            <span><%= settings.siteName %></span>
+          </div>
+          <% if (settings.tagline) { %>
+            <div class="text-[10px] text-slate-400 font-medium hidden sm:block leading-none mt-0.5"><%= settings.tagline %></div>
+          <% } %>
+        </div>
+      </a>
+
+      <!-- Right Side: Direct Access Social Channels (Dynamic from Admin) -->
+      <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+        
+        <% if (settings.social && settings.social.telegram) { %>
+        <!-- Telegram -->
+        <a href="<%= settings.social.telegram %>" aria-label="Join our Telegram Channel"" target="_blank" rel="noopener noreferrer" 
+           class="flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-[#229ED9]/15 text-[#229ED9] hover:bg-[#229ED9] hover:text-white transition-all text-xs font-semibold"
+           title="Telegram Channel">
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/></svg>
+          <span class="hidden md:inline">Telegram</span>
+        </a>
+        <% } %>
+
+        <% if (settings.social && settings.social.whatsapp) { %>
+        <!-- WhatsApp -->
+        <a href="<%= settings.social.whatsapp %>" aria-label="Join our WhatsApp Community"" target="_blank" rel="noopener noreferrer" 
+           class="flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-[#25D366]/15 text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all text-xs font-semibold"
+           title="WhatsApp Channel">
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm.01 1.67c4.54 0 8.24 3.7 8.24 8.24 0 2.2-.86 4.28-2.42 5.84-1.56 1.56-3.64 2.42-5.84 2.42-1.45 0-2.87-.38-4.12-1.11l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 01-1.25-4.44c0-4.54 3.7-8.24 8.24-8.24zm4.51 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6.1.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.07-.11-.23-.17-.48-.29z"/></svg>
+          <span class="hidden md:inline">WhatsApp</span>
+        </a>
+        <% } %>
+
+        <% if (settings.social && settings.social.instagram) { %>
+        <!-- Instagram -->
+        <a href="<%= settings.social.instagram %>" target="_blank" rel="noopener noreferrer" 
+           class="flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-[#E1306C]/15 text-[#E1306C] hover:bg-gradient-to-tr hover:from-amber-500 hover:via-pink-500 hover:to-purple-600 hover:text-white transition-all text-xs font-semibold"
+           title="Instagram">
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          <span class="hidden md:inline">Instagram</span>
+        </a>
+        <% } %>
+
+        <% if (settings.social && settings.social.facebook) { %>
+        <!-- Facebook -->
+        <a href="<%= settings.social.facebook %>" target="_blank" rel="noopener noreferrer" 
+           class="flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-[#1877F2]/15 text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all text-xs font-semibold"
+           title="Facebook">
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          <span class="hidden md:inline">Facebook</span>
+        </a>
+        <% } %>
+
+      </div>
+    </div>
+    </div>
+  </header>

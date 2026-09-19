@@ -1,0 +1,127 @@
+<%
+  const siteOrigin = typeof siteUrl !== 'undefined' && siteUrl ? siteUrl.replace(/\/+$/, '') : '';
+  const pageUrl = siteOrigin + '/' + post.category + '/' + post.slug;
+
+  // Robust Indian Date Parser (DD-MM-YYYY or DD/MM/YYYY -> ISO 8601 at 23:59:59 IST)
+  function parseToValidIso(dateStr, isEndOfDay) {
+    if (!dateStr || typeof dateStr !== 'string') return null;
+    const clean = dateStr.trim();
+    
+    // Match DD-MM-YYYY or DD/MM/YYYY
+    const dmyMatch = clean.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (dmyMatch) {
+      const day = dmyMatch[1].padStart(2, '0');
+      const month = dmyMatch[2].padStart(2, '0');
+      const year = dmyMatch[3];
+      const timeStr = isEndOfDay ? '23:59:59+05:30' : '00:00:00+05:30';
+      const parsed = new Date(`${year}-${month}-${day}T${timeStr}`);
+      if (!isNaN(parsed.getTime())) return parsed.toISOString();
+    }
+
+    // Standard ISO/US Fallback
+    const fallback = new Date(clean);
+    if (!isNaN(fallback.getTime())) return fallback.toISOString();
+    return null;
+  }
+
+  // Breadcrumb Schema
+  const breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteOrigin + '/' },
+      { '@type': 'ListItem', position: 2, name: post.category.replace(/-/g, ' ').toUpperCase(), item: siteOrigin + '/' + post.category },
+      { '@type': 'ListItem', position: 3, name: post.title }
+    ]
+  };
+
+  const graph = [breadcrumb];
+
+  if (post.category === 'latest-jobs') {
+    // Parse Total Openings safely
+    let openings = undefined;
+    if (post.totalPosts) {
+      const numMatch = String(post.totalPosts).replace(/,/g, '').match(/\d+/);
+      if (numMatch) openings = parseInt(numMatch[0], 10);
+    }
+
+    const jobPosting = {
+      '@type': 'JobPosting',
+      title: post.title,
+      description: post.description && post.description.trim().length > 20 
+        ? post.description 
+        : `Recruitment notification for ${post.title} by ${post.organization}. Check eligibility, total vacancies (${post.totalPosts || 'Refer Notification'}), syllabus, and apply online details.`,
+      datePosted: parseToValidIso(post.postedDate, false) || new Date().toISOString(),
+      hiringOrganization: {
+        '@type': 'Organization',
+        name: post.organization,
+        sameAs: post.applyUrl || siteOrigin
+      },
+      employmentType: 'FULL_TIME',
+      directApply: true,
+      url: pageUrl,
+      identifier: {
+        '@type': 'PropertyValue',
+        name: post.organization,
+        value: String(post.id || post.slug)
+      },
+      applicantLocationRequirements: {
+        '@type': 'Country',
+        name: 'IN'
+      },
+      jobLocation: {
+        '@type': 'Place',
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: 'IN'
+        }
+      },
+      experienceRequirements: {
+        '@type': 'OccupationalExperienceRequirements',
+        monthsOfExperience: 0
+      }
+    };
+
+    if (openings) {
+      jobPosting.totalJobOpenings = openings;
+    }
+
+    if (post.qualifications) {
+      jobPosting.educationRequirements = {
+        '@type': 'EducationalOccupationalCredential',
+        credentialCategory: post.qualifications
+      };
+    }
+
+    // Google-validated validThrough closing date
+    const validThroughIso = parseToValidIso(post.applicationEnd, true);
+    if (validThroughIso) {
+      jobPosting.validThrough = validThroughIso;
+    }
+
+    graph.push(jobPosting);
+
+    if (typeof jobFaq !== 'undefined' && jobFaq) {
+      graph.push(jobFaq);
+    }
+  } else {
+    // Article / CreativeWork for Results, Admit Card, Answer Key, Syllabus
+    graph.push({
+      '@type': 'Article',
+      headline: post.title,
+      description: post.description && post.description.trim() ? post.description : `Official ${post.category.replace('-', ' ')} for ${post.title} (${post.organization}).`,
+      datePublished: parseToValidIso(post.postedDate, false) || new Date().toISOString(),
+      dateModified: parseToValidIso(post.updatedAt || post.postedDate, false) || new Date().toISOString(),
+      author: { '@type': 'Organization', name: post.organization },
+      mainEntityOfPage: pageUrl,
+      publisher: {
+        '@type': 'Organization',
+        name: typeof settings !== 'undefined' && settings.siteName ? settings.siteName : 'RozgarHub Naukri',
+        url: siteOrigin
+      }
+    });
+  }
+
+  const jsonLd = { '@context': 'https://schema.org', '@graph': graph };
+  const safeJson = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+%>
+<script type="application/ld+json"><%- safeJson %></script>
